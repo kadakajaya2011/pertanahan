@@ -535,7 +535,7 @@ function pbImgRef(){const e=$('#pbimg');if(e)e.innerHTML=pbImgHTML()}
 function pbImgUse(c){const r=pbRec(PB.id);r.f.sk_use=c?1:0;r.ts=Date.now();saveL();pbPrev()}
 function pbImgDel(){if(!confirm('Hapus gambar peta dari berkas ini? Hal. 6 kembali memakai sketsa skematis.'))return;const r=pbRec(PB.id);delete r.f.sk_img;delete r.f.sk_use;r.ts=Date.now();saveL();pbImgRef();pbPrev()}
 function pbCropDone(u){const r=pbRec(PB.id);r.f.sk_img=u;r.f.sk_use=1;r.ts=Date.now();saveL();PB.pg=6;pbImgRef();pbPrev()}
-var CTMK="<div class=\"ctw\">\n<div class=\"bar\"><b style=\"font-size:15px\">Potong gambar untuk Hal. 6 (Sketsa bidang tanah)</b><span style=\"flex:1\"></span><button class=\"btn\" id=\"ct_btnClose\">✕ Tutup</button></div>\n<input type=\"file\" id=\"ct_file\" accept=\".dxf,.pdf,image/*\" hidden>\n<div id=\"ct_drop\">Seret file <b>.dxf</b>, <b>.pdf</b>, atau gambar (PNG/JPG) ke sini, atau<br><br><button class=\"btn p\" id=\"ct_btnOpen\">Pilih file</button><br><br><span class=\"hint\">File DWG belum bisa dibuka. Simpan dulu sebagai DXF (AutoCAD: SAVEAS) atau ekspor ke PDF/PNG.</span></div>\n<div id=\"ct_main\">\n<div class=\"bar\"><button class=\"btn\" id=\"ct_btnOpen2\">Ganti file</button><button class=\"btn\" id=\"ct_btnMode\">Mode: Pilih area</button><button class=\"btn\" id=\"ct_zin\">＋</button><button class=\"btn\" id=\"ct_zout\">－</button><button class=\"btn\" id=\"ct_fit\">Pas layar</button>\n<label><input type=\"checkbox\" id=\"ct_mono\" checked> Hitam putih (DXF)</label><label><input type=\"checkbox\" id=\"ct_lock\" checked> Kunci rasio kotak sketsa</label><label id=\"ct_pgl\" style=\"display:none\">Hal. PDF <input type=\"number\" id=\"ct_pg\" min=\"1\" value=\"1\"></label></div>\n<div class=\"bar\"><input type=\"search\" id=\"ct_q\" placeholder=\"Cari teks di gambar DXF (mis. nomor bidang, nama)…\"><button class=\"btn\" id=\"ct_qprev\" title=\"Sebelumnya\">‹</button><button class=\"btn\" id=\"ct_qnext\" title=\"Berikutnya\">›</button><span id=\"ct_qinfo\" class=\"hint\"></span></div>\n<canvas id=\"ct_cv\"></canvas>\n<div id=\"ct_info\" class=\"hint\"></div>\n<details id=\"ct_lay\"><summary>Layer (centang untuk menampilkan)</summary><div id=\"ct_layList\"></div></details>\n<div class=\"bar\" style=\"margin-top:8px\"><label>Lebar hasil <select id=\"ct_wpx\"><option value=\"1600\">1600 px</option><option value=\"2400\" selected>2400 px</option><option value=\"3600\">3600 px</option></select></label><label>Tebal garis <input type=\"number\" id=\"ct_lw\" value=\"2\" min=\"0.5\" max=\"10\" step=\"0.5\"> px</label>\n<button class=\"btn p\" id=\"ct_btnUse\" disabled>✔ Pakai di Hal. 6</button><button class=\"btn\" id=\"ct_btnCopy\" disabled>Salin PNG</button><button class=\"btn\" id=\"ct_btnPng\" disabled>Unduh PNG</button><button class=\"btn\" id=\"ct_btnSvg\" disabled>Unduh SVG</button><button class=\"btn\" id=\"ct_btnClear\" disabled>Hapus pilihan</button></div>\n<div id=\"ct_prev\"><div class=\"hint\" style=\"margin-bottom:6px\">Pratinjau hasil potongan</div><canvas id=\"ct_pc\"></canvas></div>\n</div></div>";
+var CTMK="<div class=\"ctw\">\n<div class=\"bar\"><b style=\"font-size:15px\">Potong gambar untuk Hal. 6 (Sketsa bidang tanah)</b><span style=\"flex:1\"></span><button class=\"btn\" id=\"ct_btnClose\">✕ Tutup</button></div>\n<input type=\"file\" id=\"ct_file\" accept=\".dxf,.pdf,image/*\" hidden>\n<div id=\"ct_drop\">Seret file <b>.dxf</b>, <b>.pdf</b>, atau gambar (PNG/JPG) ke sini, atau<br><br><button class=\"btn p\" id=\"ct_btnOpen\">Pilih file</button><br><br><span class=\"hint\">File DWG belum bisa dibuka. Simpan dulu sebagai DXF (AutoCAD: SAVEAS) atau ekspor ke PDF/PNG.</span></div>\n<div id=\"ct_main\">\n<div class=\"bar\"><button class=\"btn\" id=\"ct_btnOpen2\">Ganti file</button><span id=\"ct_fn\" class=\"hint\"></span><button class=\"btn s d\" id=\"ct_btnForget\" title=\"Hapus file yang tersimpan di browser ini\">Lupakan file tersimpan</button><button class=\"btn\" id=\"ct_btnMode\">Mode: Pilih area</button><button class=\"btn\" id=\"ct_zin\">＋</button><button class=\"btn\" id=\"ct_zout\">－</button><button class=\"btn\" id=\"ct_fit\">Pas layar</button>\n<label><input type=\"checkbox\" id=\"ct_mono\" checked> Hitam putih (DXF)</label><label><input type=\"checkbox\" id=\"ct_lock\" checked> Kunci rasio kotak sketsa</label><label id=\"ct_pgl\" style=\"display:none\">Hal. PDF <input type=\"number\" id=\"ct_pg\" min=\"1\" value=\"1\"></label></div>\n<div class=\"bar\"><input type=\"search\" id=\"ct_q\" placeholder=\"Cari teks di gambar DXF (mis. nomor bidang, nama)…\"><button class=\"btn\" id=\"ct_qprev\" title=\"Sebelumnya\">‹</button><button class=\"btn\" id=\"ct_qnext\" title=\"Berikutnya\">›</button><span id=\"ct_qinfo\" class=\"hint\"></span></div>\n<canvas id=\"ct_cv\"></canvas>\n<div id=\"ct_info\" class=\"hint\"></div>\n<details id=\"ct_lay\"><summary>Layer (centang untuk menampilkan)</summary><div id=\"ct_layList\"></div></details>\n<div class=\"bar\" style=\"margin-top:8px\"><label>Lebar hasil <select id=\"ct_wpx\"><option value=\"1600\">1600 px</option><option value=\"2400\" selected>2400 px</option><option value=\"3600\">3600 px</option></select></label><label>Tebal garis <input type=\"number\" id=\"ct_lw\" value=\"2\" min=\"0.5\" max=\"10\" step=\"0.5\"> px</label>\n<button class=\"btn p\" id=\"ct_btnUse\" disabled>✔ Pakai di Hal. 6</button><button class=\"btn\" id=\"ct_btnCopy\" disabled>Salin PNG</button><button class=\"btn\" id=\"ct_btnPng\" disabled>Unduh PNG</button><button class=\"btn\" id=\"ct_btnSvg\" disabled>Unduh SVG</button><button class=\"btn\" id=\"ct_btnClear\" disabled>Hapus pilihan</button></div>\n<div id=\"ct_prev\"><div class=\"hint\" style=\"margin-bottom:6px\">Pratinjau hasil potongan</div><canvas id=\"ct_pc\"></canvas></div>\n</div></div>";
 (function(){
 var ov=document.createElement('div');ov.id='ctx';ov.innerHTML=CTMK;document.body.appendChild(ov);var RAS=null,PDFD=null;var $=function(i){return document.getElementById('ct_'+i)};
 var HM=[],hi=-1,cv=$('cv'),V={s:1,ox:0,oy:0},P=[],TX=[],Bd=null,LY={},hidden={},sel=null,mode='pilih',out=null,drag=null;
@@ -825,10 +825,10 @@ async function load(f){
   },30);
 }
 $('btnOpen').onclick=$('btnOpen2').onclick=function(){$('file').value='';$('file').click()};
-$('file').onchange=function(e){load(e.target.files[0])};
+$('file').onchange=function(e){pick(e.target.files[0])};
 ['dragover','dragenter'].forEach(function(n){ov.addEventListener(n,function(e){e.preventDefault();$('drop').classList.add('over')})});
 ['dragleave','drop'].forEach(function(n){ov.addEventListener(n,function(e){e.preventDefault();$('drop').classList.remove('over')})});
-ov.addEventListener('drop',function(e){if(e.dataTransfer.files[0])load(e.dataTransfer.files[0])});
+ov.addEventListener('drop',function(e){if(e.dataTransfer.files[0])pick(e.dataTransfer.files[0])});
 function use(){
   if(!sel){info('Pilih area dulu.');return}
   var oc=makeOut(1400),url=oc.toDataURL('image/png');
@@ -839,7 +839,26 @@ function use(){
 }
 function shut(){ov.classList.remove('on')}
 $('pg').onchange=renderPdf;$('btnUse').onclick=use;$('btnClose').onclick=shut;
-window.CT={open:function(){ov.classList.add('on');setTimeout(function(){draw();if(Bd&&!drag)fit()},30)},close:shut};
+var TRIED=false;
+function idb(){return new Promise(function(ok,no){var r=indexedDB.open('ptsl_crop',1);r.onupgradeneeded=function(){r.result.createObjectStore('f')};r.onsuccess=function(){ok(r.result)};r.onerror=function(){no(r.error)}})}
+function idbSet(v){return idb().then(function(d){return new Promise(function(ok,no){var t=d.transaction('f','readwrite');t.objectStore('f').put(v,'last');t.oncomplete=ok;t.onerror=no})})}
+function idbGet(){return idb().then(function(d){return new Promise(function(ok,no){var q=d.transaction('f').objectStore('f').get('last');q.onsuccess=function(){ok(q.result)};q.onerror=no})})}
+function idbDel(){return idb().then(function(d){return new Promise(function(ok,no){var t=d.transaction('f','readwrite');t.objectStore('f').delete('last');t.oncomplete=ok;t.onerror=no})})}
+function pick(f){
+  if(!f)return;
+  if(/\.(dxf|pdf)$/i.test(f.name)||f.type.indexOf('image/')===0){idbSet({name:f.name,type:f.type,blob:f,t:Date.now()}).then(function(){$('fn').textContent='Tersimpan di browser ini: '+f.name}).catch(function(){$('fn').textContent='(tidak bisa menyimpan di browser ini)'})}
+  return load(f);
+}
+function autoload(){
+  TRIED=true;
+  idbGet().then(function(r){
+    if(!r||!r.blob)return;
+    $('fn').textContent='File tersimpan: '+r.name;
+    return load(new File([r.blob],r.name,{type:r.type}));
+  }).catch(function(){});
+}
+$('btnForget').onclick=function(){if(!confirm('Hapus file yang tersimpan di browser ini? Anda perlu mengunggahnya lagi untuk dipakai.'))return;idbDel().catch(function(){});RAS=null;P=[];TX=[];Bd=null;sel=null;clearOut();$('fn').textContent='';$('drop').style.display='';$('main').style.display='none';draw()};
+window.CT={open:function(){ov.classList.add('on');if(Bd){sel=null;clearOut();setTimeout(draw,30)}else if(!TRIED)autoload()},close:shut};
 })();
 
 

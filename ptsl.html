@@ -73,6 +73,18 @@ body.ppb #pbp .pbpg{break-after:page;page-break-after:always;box-shadow:none}
 body.ppb #pbp .pbpg:last-child{break-after:auto;page-break-after:auto}
 body.ppb{margin:0}
 }
+
+#ctx{position:fixed;inset:0;z-index:20;background:var(--bg);color:var(--t);overflow:auto;padding:12px 14px;display:none}
+#ctx.on{display:block}#ctx .ctw{max-width:1100px;margin:0 auto}
+#ctx label{display:inline-flex;align-items:center;gap:6px;margin:0;font-size:13px;color:var(--m)}
+#ctx input[type=checkbox],#ctx input[type=range]{width:auto}#ctx input[type=number]{width:70px}#ctx select{width:auto}
+#ct_drop{border:2px dashed var(--b);border-radius:12px;padding:40px 16px;text-align:center;color:var(--m);background:var(--c)}#ct_drop.over{border-color:var(--p)}
+#ct_main{display:none}
+#ct_cv{width:100%;height:58vh;display:block;background:#fff;border:1px solid var(--b);border-radius:10px;touch-action:none;cursor:crosshair}
+#ct_prev{display:none;margin-top:10px;background:var(--c);border:1px solid var(--b);border-radius:10px;padding:10px}
+#ct_prev canvas{max-width:100%;height:auto;background:#fff;border:1px solid var(--b)}
+#ct_lay{font-size:13px;margin-top:8px}#ct_lay div{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px}
+body.ppb #ctx{display:none!important}
 </style></head><body>
 <header><div><h1>Pengajuan PTSL — Desa Kadakajaya</h1><small>Kec. Tanjungsari, Kab. Sumedang</small></div><span style="flex:1"></span><button class="btn s" onclick="dbExp()">Ekspor DB (JSON)</button><button class="btn s" onclick="dbImp()">Impor DB (JSON)</button><span id="sbmenu"></span></header>
 <div class="w">
@@ -431,7 +443,7 @@ function pbPage(rec,p,bg){const c=S.pbc[p]||[0,0],K=3.7795,fs0=+S.pbfs||12;let h
  POS.filter(o=>o[0]==p).forEach(o=>{const[_,k,x,y,w,f]=o;
   if(w=='c'){if(rec.f[k])h+=`<svg class="pbck" width="14" height="14" viewBox="0 0 14 14" style="left:${x-7}px;top:${y-7}px" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,7.5 5.5,11 12,2.5"/></svg>`;return}
   const t=pbV(rec,k);if(t==='')return;const fs=pbFit(t,w,f||fs0);h+=`<span class="pbt" style="left:${x}px;top:${(y-fs*.85).toFixed(1)}px;font-size:${fs.toFixed(1)}px">${esc(t)}</span>`});
- if(p==6)h+=pbSketch(rec);
+ if(p==6)h+=pbSkImg(rec)||pbSketch(rec);
  return `<div class="pbpg">${bg?`<img class="pbbg" src="${PBBG[p-1]}" alt="">`:''}<div class="pbin" style="transform:translate(${(c[0]*K).toFixed(1)}px,${(c[1]*K).toFixed(1)}px)">${h}</div></div>`}
 function pbPrev(){const e=$('#pbpv');if(!e)return;const r=pbRec(PB.id),s=PB.s;
  e.innerHTML=`<div style="width:${794*s}px;height:${1122*s}px"><div style="transform:scale(${s});transform-origin:0 0;width:794px">${pbPage(r,PB.pg,PB.bg)}</div></div>`;
@@ -510,8 +522,326 @@ function pemberkasan(){
  <span>Geser cetak hal. ini (mm): X <input type="number" id="pbdx" step="0.5" style="width:64px" onchange="pbCal(0,this.value)"> Y <input type="number" id="pbdy" step="0.5" style="width:64px" onchange="pbCal(1,this.value)"></span>
  <span>Ukuran huruf <input type="number" step="0.5" min="8" max="18" value="${S.pbfs}" style="width:58px" onchange="pbFs(this.value)"></span>
  <span><button class="btn s" onclick="pbZ(-.1)">−</button><button class="btn s" onclick="pbZ(.1)">+</button></span><b id="pbtt"></b></div>
- <div class="pbw"><div class="pbf"><div id="pblc">${pbLcHTML()}</div>${PBS.map(g=>`<fieldset><legend>${g.g}</legend><div class="pbg">${g.f.map(fld).join('')}</div></fieldset>`).join('')}<p class="hint">Hal. 3, 10, 11, 12 tidak punya titik isian untuk pemohon/desa (diisi Panitia BPN atau hanya tanda tangan), sehingga tidak dicetak dari sini. Tanda tangan, materai, dan nama yang sudah tercetak di kertas fisik tidak ikut dicetak.</p></div><div class="pbv" id="pbpv"></div></div>`;
+ <div class="pbw"><div class="pbf"><div id="pblc">${pbLcHTML()}</div>${PBS.map(g=>`<fieldset><legend>${g.g}</legend><div class="pbg">${g.f.map(fld).join('')}</div></fieldset>`+(g.g.indexOf('Sketsa')==0?`<div id="pbimg">${pbImgHTML()}</div>`:'')).join('')}<p class="hint">Hal. 3, 10, 11, 12 tidak punya titik isian untuk pemohon/desa (diisi Panitia BPN atau hanya tanda tangan), sehingga tidak dicetak dari sini. Tanda tangan, materai, dan nama yang sudah tercetak di kertas fisik tidak ikut dicetak.</p></div><div class="pbv" id="pbpv"></div></div>`;
  pbPrev()}
+
+
+/* ===== Gambar peta bidang untuk Hal. 6 (alat potong DXF/PDF/PNG) ===== */
+const pbSkUse=r=>String(r.f.sk_use)!=='0';
+function pbSkImg(rec){return rec.f.sk_img&&pbSkUse(rec)?`<img src="${rec.f.sk_img}" alt="" style="position:absolute;left:95px;top:248px;width:602px;height:289px;object-fit:contain">`:''}
+function pbImgHTML(){if(!PB.id)return '';const r=pbRec(PB.id),u=r.f.sk_img;
+ return '<fieldset><legend>Gambar peta bidang untuk Hal. 6 (DXF/PDF/PNG)</legend>'+(u?`<img src="${u}" alt="" style="width:100%;border:1px solid var(--b);background:#fff;margin-bottom:6px"><label class="pbk"><input type="checkbox" ${pbSkUse(r)?'checked':''} onchange="pbImgUse(this.checked)">Cetak gambar ini di Hal. 6 (ganti sketsa skematis)</label><div class="pbn" style="margin-top:6px"><button class="btn s p" onclick="CT.open()">✂ Potong ulang</button><button class="btn s d" onclick="pbImgDel()">Hapus gambar</button></div>`:'<p class="hint">Buka file DXF, PDF, atau gambar hasil ekspor DWG, lalu potong area bidang tanah. Hasilnya dicetak di kotak sketsa Hal. 6.</p><button class="btn s p" onclick="CT.open()">✂ Buka alat potong gambar</button>')+'</fieldset>'}
+function pbImgRef(){const e=$('#pbimg');if(e)e.innerHTML=pbImgHTML()}
+function pbImgUse(c){const r=pbRec(PB.id);r.f.sk_use=c?1:0;r.ts=Date.now();saveL();pbPrev()}
+function pbImgDel(){if(!confirm('Hapus gambar peta dari berkas ini? Hal. 6 kembali memakai sketsa skematis.'))return;const r=pbRec(PB.id);delete r.f.sk_img;delete r.f.sk_use;r.ts=Date.now();saveL();pbImgRef();pbPrev()}
+function pbCropDone(u){const r=pbRec(PB.id);r.f.sk_img=u;r.f.sk_use=1;r.ts=Date.now();saveL();PB.pg=6;pbImgRef();pbPrev()}
+var CTMK="<div class=\"ctw\">\n<div class=\"bar\"><b style=\"font-size:15px\">Potong gambar untuk Hal. 6 (Sketsa bidang tanah)</b><span style=\"flex:1\"></span><button class=\"btn\" id=\"ct_btnClose\">✕ Tutup</button></div>\n<input type=\"file\" id=\"ct_file\" accept=\".dxf,.pdf,image/*\" hidden>\n<div id=\"ct_drop\">Seret file <b>.dxf</b>, <b>.pdf</b>, atau gambar (PNG/JPG) ke sini, atau<br><br><button class=\"btn p\" id=\"ct_btnOpen\">Pilih file</button><br><br><span class=\"hint\">File DWG belum bisa dibuka. Simpan dulu sebagai DXF (AutoCAD: SAVEAS) atau ekspor ke PDF/PNG.</span></div>\n<div id=\"ct_main\">\n<div class=\"bar\"><button class=\"btn\" id=\"ct_btnOpen2\">Ganti file</button><button class=\"btn\" id=\"ct_btnMode\">Mode: Pilih area</button><button class=\"btn\" id=\"ct_zin\">＋</button><button class=\"btn\" id=\"ct_zout\">－</button><button class=\"btn\" id=\"ct_fit\">Pas layar</button>\n<label><input type=\"checkbox\" id=\"ct_mono\" checked> Hitam putih (DXF)</label><label><input type=\"checkbox\" id=\"ct_lock\" checked> Kunci rasio kotak sketsa</label><label id=\"ct_pgl\" style=\"display:none\">Hal. PDF <input type=\"number\" id=\"ct_pg\" min=\"1\" value=\"1\"></label></div>\n<div class=\"bar\"><input type=\"search\" id=\"ct_q\" placeholder=\"Cari teks di gambar DXF (mis. nomor bidang, nama)…\"><button class=\"btn\" id=\"ct_qprev\" title=\"Sebelumnya\">‹</button><button class=\"btn\" id=\"ct_qnext\" title=\"Berikutnya\">›</button><span id=\"ct_qinfo\" class=\"hint\"></span></div>\n<canvas id=\"ct_cv\"></canvas>\n<div id=\"ct_info\" class=\"hint\"></div>\n<details id=\"ct_lay\"><summary>Layer (centang untuk menampilkan)</summary><div id=\"ct_layList\"></div></details>\n<div class=\"bar\" style=\"margin-top:8px\"><label>Lebar hasil <select id=\"ct_wpx\"><option value=\"1600\">1600 px</option><option value=\"2400\" selected>2400 px</option><option value=\"3600\">3600 px</option></select></label><label>Tebal garis <input type=\"number\" id=\"ct_lw\" value=\"2\" min=\"0.5\" max=\"10\" step=\"0.5\"> px</label>\n<button class=\"btn p\" id=\"ct_btnUse\" disabled>✔ Pakai di Hal. 6</button><button class=\"btn\" id=\"ct_btnCopy\" disabled>Salin PNG</button><button class=\"btn\" id=\"ct_btnPng\" disabled>Unduh PNG</button><button class=\"btn\" id=\"ct_btnSvg\" disabled>Unduh SVG</button><button class=\"btn\" id=\"ct_btnClear\" disabled>Hapus pilihan</button></div>\n<div id=\"ct_prev\"><div class=\"hint\" style=\"margin-bottom:6px\">Pratinjau hasil potongan</div><canvas id=\"ct_pc\"></canvas></div>\n</div></div>";
+(function(){
+var ov=document.createElement('div');ov.id='ctx';ov.innerHTML=CTMK;document.body.appendChild(ov);var RAS=null,PDFD=null;var $=function(i){return document.getElementById('ct_'+i)};
+var HM=[],hi=-1,cv=$('cv'),V={s:1,ox:0,oy:0},P=[],TX=[],Bd=null,LY={},hidden={},sel=null,mode='pilih',out=null,drag=null;
+function info(t){$('info').textContent=t}
+function F(e,c,d){for(var i=0;i<e.p.length;i++)if(e.p[i][0]===c)return e.p[i][1];return d===undefined?null:d}
+function N(e,c,d){var v=F(e,c);if(v===null)return d;var x=parseFloat(v);return isNaN(x)?d:x}
+function I(e,c,d){var v=F(e,c);if(v===null)return d;var x=parseInt(v,10);return isNaN(x)?d:x}
+function aci(i){
+  var T={1:'#e00000',2:'#c8a000',3:'#00a000',4:'#00a8a8',5:'#0000ff',6:'#c000c0',7:'#000000',8:'#808080',9:'#a0a0a0'};
+  if(T[i])return T[i];
+  if(i>=250&&i<=255){var v=[51,91,132,173,214,255][i-250];return 'rgb('+v+','+v+','+v+')'}
+  if(i>=10&&i<=249){var k=(i-10)%10,h=Math.floor((i-10)/10)*15;return 'hsl('+h+','+(k%2?50:100)+'%,'+[45,70,40,60,35,55,30,48,25,40][k]+'%)'}
+  return '#000000';
+}
+function hex(v){return '#'+('000000'+(parseInt(v,10)&0xffffff).toString(16)).slice(-6)}
+function colr(e,la,inh){
+  var tc=F(e,420);if(tc!==null)return hex(tc);
+  var c=I(e,62,256);
+  if(c===256){return la?(la.t?hex(la.t):aci(la.c)):aci(7)}
+  if(c===0)return inh||aci(7);
+  return aci(Math.abs(c));
+}
+function mul(A,B){return [A[0]*B[0]+A[2]*B[1],A[1]*B[0]+A[3]*B[1],A[0]*B[2]+A[2]*B[3],A[1]*B[2]+A[3]*B[3],A[0]*B[4]+A[2]*B[5]+A[4],A[1]*B[4]+A[3]*B[5]+A[5]]}
+function arcPts(cx,cy,r,a0,a1){var n=Math.max(4,Math.ceil((a1-a0)/0.0436)),o=[];for(var j=0;j<=n;j++){var a=a0+(a1-a0)*j/n;o.push(cx+r*Math.cos(a),cy+r*Math.sin(a))}return o}
+function bul(a,b,o){
+  var dx=b.x-a.x,dy=b.y-a.y,bg=a.b;
+  if(!bg||Math.hypot(dx,dy)<1e-12){o.push(b.x,b.y);return}
+  var k=(1-bg*bg)/(2*bg),cx=(a.x+b.x)/2-dy*k/2,cy=(a.y+b.y)/2+dx*k/2,r=Math.hypot(a.x-cx,a.y-cy),a1=Math.atan2(a.y-cy,a.x-cx),sw=4*Math.atan(bg),n=Math.max(2,Math.ceil(Math.abs(sw)/0.0436));
+  for(var j=1;j<n;j++){var an=a1+sw*j/n;o.push(cx+r*Math.cos(an),cy+r*Math.sin(an))}
+  o.push(b.x,b.y);
+}
+function pline(vs,z){
+  if(!vs.length)return [];
+  var o=[vs[0].x,vs[0].y];
+  for(var k=1;k<vs.length;k++)bul(vs[k-1],vs[k],o);
+  if(z&&vs.length>2)bul(vs[vs.length-1],vs[0],o);
+  return o;
+}
+function add(pts,z,col,ly,M,fill){
+  if(pts.length<4)return;
+  var a=new Array(pts.length);
+  for(var i=0;i<pts.length;i+=2){a[i]=M[0]*pts[i]+M[2]*pts[i+1]+M[4];a[i+1]=M[1]*pts[i]+M[3]*pts[i+1]+M[5]}
+  P.push({p:a,z:z,c:col,l:ly,f:fill});
+}
+function clean(s){
+  return s.replace(/\\P/g,'\n').replace(/\\[A-Za-z][^;\\]*;/g,'').replace(/\\~/g,' ').replace(/[{}]/g,'').replace(/%%[cC]/g,'Ø').replace(/%%[dD]/g,'°').replace(/%%[pP]/g,'±').replace(/\\\\/g,'\\');
+}
+function addText(e,str,x,y,h,rot,ha,off,col,ly,M){
+  if(!str||!h)return;
+  var q=M[0]*x+M[2]*y+M[4],w=M[1]*x+M[3]*y+M[5];
+  TX.push({x:q,y:w,h:h*Math.hypot(M[0],M[1]),r:rot+Math.atan2(M[1],M[0])*180/Math.PI,s:str.split('\n'),ha:ha,off:off,c:col,l:ly});
+}
+function proc(list,M,d,inh,blocks){
+  for(var i=0;i<list.length;i++){
+    var e=list[i],t=e.t,ly=F(e,8,'0'),la=LY[ly];
+    if(la&&la.off)continue;
+    var col=colr(e,la,inh);
+    if(t==='LINE'){add([N(e,10,0),N(e,20,0),N(e,11,0),N(e,21,0)],false,col,ly,M)}
+    else if(t==='LWPOLYLINE'){
+      var vs=[];e.p.forEach(function(p){if(p[0]===10)vs.push({x:+p[1],y:0,b:0});else if(p[0]===20&&vs.length)vs[vs.length-1].y=+p[1];else if(p[0]===42&&vs.length)vs[vs.length-1].b=+p[1]});
+      var z=(I(e,70,0)&1)===1;add(pline(vs,z),z,col,ly,M);
+    }
+    else if(t==='POLYLINE'){
+      var fl=I(e,70,0),vv=[],j=i+1;
+      while(j<list.length&&list[j].t==='VERTEX'){var v=list[j];if(!(I(v,70,0)&16)&&!(fl&64))vv.push({x:N(v,10,0),y:N(v,20,0),b:N(v,42,0)});j++}
+      if(j<list.length&&list[j].t==='SEQEND')j++;
+      i=j-1;var zz=(fl&1)===1;add(pline(vv,zz),zz,col,ly,M);
+    }
+    else if(t==='CIRCLE'||t==='ARC'){
+      var cx=N(e,10,0),cy=N(e,20,0),r=N(e,40,0),a0=0,a1=360,ex=N(e,230,1)<0;
+      if(t==='ARC'){a0=N(e,50,0);a1=N(e,51,0)}
+      if(ex){cx=-cx;var tt=a0;a0=180-a1;a1=180-tt}
+      if(a1<=a0)a1+=360;
+      add(arcPts(cx,cy,r,a0*Math.PI/180,a1*Math.PI/180),t==='CIRCLE',col,ly,M);
+    }
+    else if(t==='ELLIPSE'){
+      var cx=N(e,10,0),cy=N(e,20,0),mx=N(e,11,0),my=N(e,21,0),ra=N(e,40,1),t0=N(e,41,0),t1=N(e,42,2*Math.PI);
+      if(t1<=t0)t1+=2*Math.PI;
+      var pts=[];for(var j=0;j<=96;j++){var u=t0+(t1-t0)*j/96;pts.push(cx+Math.cos(u)*mx-Math.sin(u)*ra*my,cy+Math.cos(u)*my+Math.sin(u)*ra*mx)}
+      add(pts,false,col,ly,M);
+    }
+    else if(t==='SPLINE'||t==='LEADER'){
+      var fit=[],ctl=[];
+      e.p.forEach(function(p){
+        if(p[0]===11)fit.push(+p[1],0);else if(p[0]===21&&fit.length)fit[fit.length-1]=+p[1];
+        if(p[0]===10)ctl.push(+p[1],0);else if(p[0]===20&&ctl.length)ctl[ctl.length-1]=+p[1];
+      });
+      add(t==='SPLINE'&&fit.length>=4?fit:ctl,false,col,ly,M);
+    }
+    else if(t==='SOLID'||t==='TRACE'){
+      var q=[N(e,10,0),N(e,20,0),N(e,11,0),N(e,21,0),N(e,13,0),N(e,23,0),N(e,12,0),N(e,22,0)];
+      add(q,true,col,ly,M,true);
+    }
+    else if(t==='TEXT'){
+      var ha=I(e,72,0),va=I(e,73,0),x=N(e,10,0),y=N(e,20,0);
+      if((ha||va)&&F(e,11)!==null){x=N(e,11,0);y=N(e,21,0)}
+      addText(e,clean(F(e,1,'')),x,y,N(e,40,0),N(e,50,0),ha===1||ha===4?1:ha===2?2:0,va===3?0.85:va===2?0.35:0,col,ly,M);
+    }
+    else if(t==='MTEXT'){
+      var s=(e.p.filter(function(p){return p[0]===3}).map(function(p){return p[1]}).join('')+F(e,1,'')),at=I(e,71,1),rot=N(e,50,null);
+      if(rot===null)rot=F(e,11)!==null?Math.atan2(N(e,21,0),N(e,11,0))*180/Math.PI:0;
+      addText(e,clean(s),N(e,10,0),N(e,20,0),N(e,40,0),rot,(at-1)%3,at<=3?0.85:at<=6?0.35:0,col,ly,M);
+    }
+    else if((t==='INSERT'||t==='DIMENSION')&&d<8){
+      var nm=F(e,2,''),b=blocks[nm];if(!b)continue;
+      var sx=N(e,41,1),sy=N(e,42,1),rt=N(e,50,0)*Math.PI/180,px=N(e,10,0),py=N(e,20,0);
+      if(t==='DIMENSION'){sx=sy=1;rt=0;px=py=0}
+      var nc=I(e,70,1),nr=I(e,71,1),dc=N(e,44,0),dr=N(e,45,0);
+      if(t==='DIMENSION'||nc*nr>400){nc=nr=1}
+      for(var rr=0;rr<nr;rr++)for(var cc=0;cc<nc;cc++){
+        var ox=cc*dc,oy=rr*dr,qx=px+ox*Math.cos(rt)-oy*Math.sin(rt),qy=py+ox*Math.sin(rt)+oy*Math.cos(rt);
+        var Lm=[Math.cos(rt)*sx,Math.sin(rt)*sx,-Math.sin(rt)*sy,Math.cos(rt)*sy,qx,qy];
+        proc(b.e,mul(M,mul(Lm,[1,0,0,1,-b.bx,-b.by])),d+1,col,blocks);
+      }
+    }
+  }
+}
+function parse(txt){
+  var ln=txt.split(/\r?\n/),recs=[],cur=null;
+  for(var i=0;i+1<ln.length;i+=2){var c=parseInt(ln[i],10),v=ln[i+1].trim();if(c===0){cur={t:v,p:[]};recs.push(cur)}else if(cur)cur.p.push([c,v])}
+  var sec='',blocks={},ents=[],cb=null;LY={};P=[];TX=[];hidden={};
+  recs.forEach(function(r){
+    if(r.t==='SECTION'){sec=F(r,2,'');return}
+    if(r.t==='ENDSEC'){sec='';return}
+    if(sec==='TABLES'&&r.t==='LAYER'){var c=I(r,62,7);LY[F(r,2,'0')]={c:Math.abs(c)||7,off:c<0||(I(r,70,0)&1)===1,t:F(r,420)}}
+    else if(sec==='BLOCKS'){if(r.t==='BLOCK'){cb={bx:N(r,10,0),by:N(r,20,0),e:[]};blocks[F(r,2,'')]=cb}else if(r.t==='ENDBLK')cb=null;else if(cb)cb.e.push(r)}
+    else if(sec==='ENTITIES')ents.push(r);
+  });
+  proc(ents,[1,0,0,1,0,0],0,null,blocks);
+  P.sort(function(a,b){return a.c<b.c?-1:a.c>b.c?1:0});
+  var x0=1e300,y0=1e300,x1=-1e300,y1=-1e300;
+  P.forEach(function(p){for(var i=0;i<p.p.length;i+=2){var x=p.p[i],y=p.p[i+1];if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}});
+  TX.forEach(function(t){if(t.x<x0)x0=t.x;if(t.x>x1)x1=t.x;if(t.y<y0)y0=t.y;if(t.y>y1)y1=t.y});
+  Bd=x1>=x0?{x0:x0,y0:y0,x1:x1,y1:y1}:null;
+}
+function R(c,s,ox,oy,lw,mono,disp){
+  if(RAS){c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(RAS,ox,oy-RAS.height*s,RAS.width*s,RAS.height*s)}
+  c.lineWidth=lw;c.lineJoin=c.lineCap='round';
+  var cur=null,open=false;
+  for(var k=0;k<P.length;k++){
+    var p=P[k];if(hidden[p.l])continue;
+    var col=mono?'#000000':p.c,a=p.p;
+    if(p.f){if(open){c.stroke();open=false;cur=null}c.beginPath();c.moveTo(a[0]*s+ox,oy-a[1]*s);for(var j=2;j<a.length;j+=2)c.lineTo(a[j]*s+ox,oy-a[j+1]*s);c.closePath();c.fillStyle=col;c.fill();continue}
+    if(col!==cur){if(open)c.stroke();c.strokeStyle=col;c.beginPath();cur=col;open=true}
+    c.moveTo(a[0]*s+ox,oy-a[1]*s);
+    for(var j=2;j<a.length;j+=2)c.lineTo(a[j]*s+ox,oy-a[j+1]*s);
+    if(p.z)c.closePath();
+  }
+  if(open)c.stroke();
+  TX.forEach(function(t){
+    if(hidden[t.l])return;var px=t.h*s;if(disp&&px<3)return;
+    c.save();c.translate(t.x*s+ox,oy-t.y*s);c.rotate(-t.r*Math.PI/180);
+    c.font=px+'px Arial, sans-serif';c.fillStyle=mono?'#000':t.c;c.textAlign=['left','center','right'][t.ha];
+    t.s.forEach(function(str,j){c.fillText(str,0,(t.off+j*1.4)*px)});
+    c.restore();
+  });
+}
+function draw(){
+  var r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1,w=Math.round(r.width*d),h=Math.round(r.height*d);
+  if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}
+  var c=cv.getContext('2d');c.setTransform(d,0,0,d,0,0);c.fillStyle='#fff';c.fillRect(0,0,r.width,r.height);
+  if(!Bd)return;
+  R(c,V.s,V.ox,V.oy,1,$('mono').checked,true);
+  HM.slice(0,2000).forEach(function(k,j){var t=TX[k],x=t.x*V.s+V.ox,y=V.oy-t.y*V.s;c.beginPath();c.arc(x,y,j===hi?16:10,0,6.283);c.lineWidth=j===hi?3:2;c.strokeStyle=j===hi?'#e00000':'#ff8a00';c.stroke()});
+  if(sel){
+    var x=sel.x0*V.s+V.ox,y=V.oy-sel.y1*V.s,ww=(sel.x1-sel.x0)*V.s,hh=(sel.y1-sel.y0)*V.s;
+    c.fillStyle='rgba(31,111,235,.12)';c.fillRect(x,y,ww,hh);c.strokeStyle='#1f6feb';c.lineWidth=1.5;c.setLineDash([6,4]);c.strokeRect(x,y,ww,hh);c.setLineDash([]);
+  }
+}
+function fit(){
+  if(!Bd)return;var r=cv.getBoundingClientRect(),w=Bd.x1-Bd.x0||1,h=Bd.y1-Bd.y0||1;
+  V.s=Math.min(r.width/w,r.height/h)*0.92;V.ox=r.width/2-(Bd.x0+Bd.x1)/2*V.s;V.oy=r.height/2+(Bd.y0+Bd.y1)/2*V.s;draw();
+}
+function zoom(f,px,py){
+  var r=cv.getBoundingClientRect();if(px===undefined){px=r.width/2;py=r.height/2}
+  var wx=(px-V.ox)/V.s,wy=(V.oy-py)/V.s;V.s*=f;V.ox=px-wx*V.s;V.oy=py+wy*V.s;draw();
+}
+function pos(e){var r=cv.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top}}
+function world(p){return {x:(p.x-V.ox)/V.s,y:(V.oy-p.y)/V.s}}
+cv.addEventListener('wheel',function(e){e.preventDefault();var p=pos(e);zoom(e.deltaY<0?1.2:1/1.2,p.x,p.y)},{passive:false});
+cv.addEventListener('pointerdown',function(e){
+  if(!Bd)return;cv.setPointerCapture(e.pointerId);var p=pos(e);
+  drag={p:p,w:world(p),moved:false};if(mode==='pilih'){sel=null;clearOut()}
+});
+cv.addEventListener('pointermove',function(e){
+  if(!drag)return;var p=pos(e);
+  if(mode==='geser'){V.ox+=p.x-drag.p.x;V.oy+=p.y-drag.p.y;drag.p=p}
+  else{var w=world(p),dx=w.x-drag.w.x,dy=w.y-drag.w.y;if($('lock').checked){var K0=602/289;if(Math.abs(dx)/K0>=Math.abs(dy))dy=(dy<0?-1:1)*Math.abs(dx)/K0;else dx=(dx<0?-1:1)*Math.abs(dy)*K0}w={x:drag.w.x+dx,y:drag.w.y+dy};sel={x0:Math.min(w.x,drag.w.x),x1:Math.max(w.x,drag.w.x),y0:Math.min(w.y,drag.w.y),y1:Math.max(w.y,drag.w.y)};drag.moved=true}
+  draw();
+});
+cv.addEventListener('pointerup',function(){
+  if(!drag)return;var ok=drag.moved&&mode==='pilih';drag=null;
+  if(ok){if((sel.x1-sel.x0)*V.s<4||(sel.y1-sel.y0)*V.s<4){sel=null;draw()}else makeOut()}
+});
+function clearOut(){out=null;$('prev').style.display='none';['btnUse','btnCopy','btnPng','btnSvg','btnClear'].forEach(function(i){$(i).disabled=true})}
+function makeOut(Wo){
+  var W=Wo||+$('wpx').value,wb=+$('wpx').value,w=sel.x1-sel.x0,h=sel.y1-sel.y0,es=W/w,H=Math.round(h*es);
+  if(W*H>6e7){H=Math.floor(6e7/W);es=H/h;W=Math.round(w*es)}
+  var oc=document.createElement('canvas');oc.width=W;oc.height=H;var c=oc.getContext('2d');
+  c.fillStyle='#fff';c.fillRect(0,0,W,H);R(c,es,-sel.x0*es,sel.y1*es,+$('lw').value*W/wb,$('mono').checked,false);
+  out=oc;var pc=$('pc');pc.width=W;pc.height=H;pc.getContext('2d').drawImage(oc,0,0);
+  $('prev').style.display='block';['btnUse','btnCopy','btnPng','btnSvg','btnClear'].forEach(function(i){$(i).disabled=false});
+  info('Hasil: '+W+' × '+H+' px');return oc;
+}
+function svg(){
+  var W=+$('wpx').value,w=sel.x1-sel.x0,h=sel.y1-sel.y0,es=W/w,mono=$('mono').checked,f=function(v){return +v.toFixed(3)},E=function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')};
+  var o='<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+Math.round(h*es)+'" viewBox="'+f(sel.x0)+' '+f(-sel.y1)+' '+f(w)+' '+f(h)+'"><rect x="'+f(sel.x0)+'" y="'+f(-sel.y1)+'" width="'+f(w)+'" height="'+f(h)+'" fill="#fff"/><g transform="scale(1,-1)" fill="none" stroke-width="'+f(+$('lw').value/es)+'" stroke-linecap="round" stroke-linejoin="round">';
+  P.forEach(function(p){
+    if(hidden[p.l])return;var a=p.p,x0=1e300,x1=-1e300,y0=1e300,y1=-1e300;
+    for(var i=0;i<a.length;i+=2){if(a[i]<x0)x0=a[i];if(a[i]>x1)x1=a[i];if(a[i+1]<y0)y0=a[i+1];if(a[i+1]>y1)y1=a[i+1]}
+    if(x1<sel.x0||x0>sel.x1||y1<sel.y0||y0>sel.y1)return;
+    var d='M'+f(a[0])+' '+f(a[1]);for(var i=2;i<a.length;i+=2)d+='L'+f(a[i])+' '+f(a[i+1]);if(p.z)d+='Z';
+    var c=mono?'#000':p.c;o+=p.f?'<path d="'+d+'" fill="'+c+'" stroke="none"/>':'<path d="'+d+'" stroke="'+c+'"/>';
+  });
+  TX.forEach(function(t){
+    if(hidden[t.l]||t.x<sel.x0-t.h*50||t.x>sel.x1+t.h*50||t.y<sel.y0-t.h*50||t.y>sel.y1+t.h*50)return;
+    o+='<text transform="translate('+f(t.x)+' '+f(t.y)+') rotate('+f(t.r)+') scale(1 -1)" font-family="Arial, sans-serif" font-size="'+f(t.h)+'" text-anchor="'+['start','middle','end'][t.ha]+'" fill="'+(mono?'#000':t.c)+'" stroke="none">'+t.s.map(function(s,j){return '<tspan x="0" y="'+f((t.off+j*1.4)*t.h)+'">'+E(s)+'</tspan>'}).join('')+'</text>';
+  });
+  return o+'</g></svg>';
+}
+function save(blob,name){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove()}
+$('btnPng').onclick=function(){if(out)out.toBlob(function(b){save(b,'potongan.png')},'image/png')};
+$('btnSvg').onclick=function(){if(sel)save(new Blob([svg()],{type:'image/svg+xml'}),'potongan.svg')};
+$('btnCopy').onclick=function(){
+  if(!out)return;
+  out.toBlob(async function(b){
+    try{await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);info('Tersalin. Tekan Ctrl+V di Word.')}
+    catch(e){info('Browser menolak akses clipboard. Gunakan Unduh PNG.')}
+  },'image/png');
+};
+$('btnClear').onclick=function(){sel=null;clearOut();draw();info('')};
+$('wpx').onchange=$('lw').onchange=$('mono').onchange=function(){if(sel&&out)makeOut();draw()};
+$('btnMode').onclick=function(){
+  mode=mode==='pilih'?'geser':'pilih';
+  $('btnMode').textContent='Mode: '+(mode==='pilih'?'Pilih area':'Geser');
+  cv.style.cursor=mode==='pilih'?'crosshair':'grab';
+};
+$('zin').onclick=function(){zoom(1.4)};$('zout').onclick=function(){zoom(1/1.4)};$('fit').onclick=fit;
+window.addEventListener('resize',draw);
+
+function find(){
+  var q=$('q').value.trim().toLowerCase();HM=[];hi=-1;
+  if(q)TX.forEach(function(t,k){if(!hidden[t.l]&&t.s.join(' ').toLowerCase().indexOf(q)>=0)HM.push(k)});
+  $('qinfo').textContent=q&&!HM.length?'Tidak ditemukan':'';
+  if(HM.length)go(0);else draw();
+}
+function go(i){
+  if(!HM.length)return;hi=(i+HM.length)%HM.length;
+  var t=TX[HM[hi]],r=cv.getBoundingClientRect(),w=Math.max.apply(null,t.s.map(function(s){return s.length}))*0.6*t.h;
+  V.s=Math.max(V.s,Math.min(60/t.h,r.width/(Math.max(w,t.h)*4)));
+  V.ox=r.width/2-t.x*V.s;V.oy=r.height/2+t.y*V.s;
+  $('qinfo').textContent=(hi+1)+' / '+HM.length;draw();
+}
+$('q').oninput=find;
+$('q').onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();go(hi+(e.shiftKey?-1:1))}};
+$('qnext').onclick=function(){go(hi+1)};$('qprev').onclick=function(){go(hi-1)};
+function layers(){
+  var cnt={};P.forEach(function(p){cnt[p.l]=1});TX.forEach(function(t){cnt[t.l]=1});
+  var box=$('layList');box.innerHTML='';
+  Object.keys(cnt).sort().forEach(function(n){
+    var l=document.createElement('label'),cb=document.createElement('input');cb.type='checkbox';cb.checked=true;
+    cb.onchange=function(){hidden[n]=!cb.checked;if(sel&&out)makeOut();draw()};
+    l.appendChild(cb);l.appendChild(document.createTextNode(' '+n));box.appendChild(l);
+  });
+}
+function shown(){$('drop').style.display='none';$('main').style.display='block'}
+function setRaster(c,msg){RAS=c;P=[];TX=[];LY={};hidden={};sel=null;clearOut();HM=[];hi=-1;Bd={x0:0,y0:0,x1:c.width,y1:c.height};layers();fit();info(msg)}
+function loadImg(f){shown();PDFD=null;$('pgl').style.display='none';var im=new Image();im.onload=function(){var k=Math.min(1,6000/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);var g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);setRaster(c,'Gambar '+c.width+' × '+c.height+' px. Seret pada gambar untuk memilih area.')};im.onerror=function(){info('Gambar tidak bisa dibaca.')};im.src=URL.createObjectURL(f)}
+function needPdf(){return new Promise(function(ok,no){if(window.pdfjsLib)return ok();var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';s.onload=function(){var w=document.createElement('script');w.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';w.onload=ok;w.onerror=no;document.head.appendChild(w)};s.onerror=no;document.head.appendChild(s)})}
+async function renderPdf(){if(!PDFD)return;info('Merender halaman…');try{var pg=await PDFD.getPage(+$('pg').value||1),v0=pg.getViewport({scale:1}),k=Math.min(4,6000/Math.max(v0.width,v0.height)),vp=pg.getViewport({scale:k}),c=document.createElement('canvas');c.width=Math.round(vp.width);c.height=Math.round(vp.height);var g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);await pg.render({canvasContext:g,viewport:vp}).promise;setRaster(c,'Halaman PDF '+($('pg').value||1)+' ('+c.width+' × '+c.height+' px). Seret pada gambar untuk memilih area.')}catch(e){info('Gagal merender PDF: '+e.message)}}
+async function loadPdf(f){shown();RAS=null;info('Memuat PDF…');try{await needPdf();PDFD=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;$('pgl').style.display='';$('pg').max=PDFD.numPages;$('pg').value=1;renderPdf()}catch(e){info('Gagal membuka PDF: '+e.message)}}
+async function load(f){
+  if(!f)return;
+  if(/\.pdf$/i.test(f.name)||f.type==='application/pdf')return loadPdf(f);
+  if(f.type.indexOf('image/')===0)return loadImg(f);
+  RAS=null;PDFD=null;$('pgl').style.display='none';
+  var u8=new Uint8Array(await f.arrayBuffer()),head=new TextDecoder('latin1').decode(u8.slice(0,22));
+  $('drop').style.display='none';$('main').style.display='block';
+  if(/^AC10/.test(head)){info('Ini file DWG. Simpan dulu sebagai DXF dari software CAD, lalu buka di sini.');return}
+  if(head.indexOf('AutoCAD Binary DXF')===0){info('DXF biner belum didukung. Simpan ulang sebagai DXF ASCII.');return}
+  var txt;try{txt=new TextDecoder('utf-8',{fatal:true}).decode(u8)}catch(e){txt=new TextDecoder('windows-1252').decode(u8)}
+  info('Membaca gambar…');sel=null;clearOut();HM=[];hi=-1;$('q').value='';$('qinfo').textContent='';
+  setTimeout(function(){
+    try{parse(txt)}catch(e){info('Gagal membaca DXF: '+e.message);return}
+    if(!Bd){info('Tidak ada entitas yang bisa digambar. Coba simpan DXF versi 2010 ASCII.');draw();return}
+    layers();fit();info(P.length+' objek garis dan '+TX.length+' teks. Seret pada gambar untuk memilih area.');
+  },30);
+}
+$('btnOpen').onclick=$('btnOpen2').onclick=function(){$('file').value='';$('file').click()};
+$('file').onchange=function(e){load(e.target.files[0])};
+['dragover','dragenter'].forEach(function(n){ov.addEventListener(n,function(e){e.preventDefault();$('drop').classList.add('over')})});
+['dragleave','drop'].forEach(function(n){ov.addEventListener(n,function(e){e.preventDefault();$('drop').classList.remove('over')})});
+ov.addEventListener('drop',function(e){if(e.dataTransfer.files[0])load(e.dataTransfer.files[0])});
+function use(){
+  if(!sel){info('Pilih area dulu.');return}
+  var oc=makeOut(1400),url=oc.toDataURL('image/png');
+  if(url.length>350000){var j=oc.toDataURL('image/jpeg',0.88);if(j.length<url.length)url=j}
+  if(url.length>700000){oc=makeOut(1000);url=oc.toDataURL('image/jpeg',0.85)}
+  if(window.pbCropDone)window.pbCropDone(url);
+  shut();
+}
+function shut(){ov.classList.remove('on')}
+$('pg').onchange=renderPdf;$('btnUse').onclick=use;$('btnClose').onclick=shut;
+window.CT={open:function(){ov.classList.add('on');setTimeout(function(){draw();if(Bd&&!drag)fit()},30)},close:shut};
+})();
+
 
 SB.start({module:'ptsl',title:'Pengajuan PTSL Desa Kadakajaya',
  collections:[

@@ -535,10 +535,10 @@ function pbImgRef(){const e=$('#pbimg');if(e)e.innerHTML=pbImgHTML()}
 function pbImgUse(c){const r=pbRec(PB.id);r.f.sk_use=c?1:0;r.ts=Date.now();saveL();pbPrev()}
 function pbImgDel(){if(!confirm('Hapus gambar peta dari berkas ini? Hal. 6 kembali memakai sketsa skematis.'))return;const r=pbRec(PB.id);delete r.f.sk_img;delete r.f.sk_use;r.ts=Date.now();saveL();pbImgRef();pbPrev()}
 function pbCropDone(u){const r=pbRec(PB.id);r.f.sk_img=u;r.f.sk_use=1;r.ts=Date.now();saveL();PB.pg=6;pbImgRef();pbPrev()}
-var CTMK="<div class=\"ctw\">\n<div class=\"bar\"><b style=\"font-size:15px\">Potong gambar untuk Hal. 6 (Sketsa bidang tanah)</b><span style=\"flex:1\"></span><button class=\"btn\" id=\"ct_btnClose\">✕ Tutup</button></div>\n<input type=\"file\" id=\"ct_file\" accept=\".dxf,.pdf,image/*\" hidden>\n<div id=\"ct_drop\">Seret file <b>.dxf</b>, <b>.pdf</b>, atau gambar (PNG/JPG) ke sini, atau<br><br><button class=\"btn p\" id=\"ct_btnOpen\">Pilih file</button><br><br><span class=\"hint\">File DWG belum bisa dibuka. Simpan dulu sebagai DXF (AutoCAD: SAVEAS) atau ekspor ke PDF/PNG.</span></div>\n<div id=\"ct_main\">\n<div class=\"bar\"><button class=\"btn\" id=\"ct_btnOpen2\">Ganti file</button><span id=\"ct_fn\" class=\"hint\"></span><button class=\"btn s d\" id=\"ct_btnForget\" title=\"Hapus file yang tersimpan di browser ini\">Lupakan file tersimpan</button><button class=\"btn\" id=\"ct_btnMode\">Mode: Pilih area</button><button class=\"btn\" id=\"ct_zin\">＋</button><button class=\"btn\" id=\"ct_zout\">－</button><button class=\"btn\" id=\"ct_fit\">Pas layar</button>\n<label><input type=\"checkbox\" id=\"ct_mono\" checked> Hitam putih (DXF)</label><label><input type=\"checkbox\" id=\"ct_lock\" checked> Kunci rasio kotak sketsa</label><label id=\"ct_pgl\" style=\"display:none\">Hal. PDF <input type=\"number\" id=\"ct_pg\" min=\"1\" value=\"1\"></label></div>\n<div class=\"bar\"><input type=\"search\" id=\"ct_q\" placeholder=\"Cari teks di gambar DXF (mis. nomor bidang, nama)…\"><button class=\"btn\" id=\"ct_qprev\" title=\"Sebelumnya\">‹</button><button class=\"btn\" id=\"ct_qnext\" title=\"Berikutnya\">›</button><span id=\"ct_qinfo\" class=\"hint\"></span></div>\n<canvas id=\"ct_cv\"></canvas>\n<div id=\"ct_info\" class=\"hint\"></div>\n<details id=\"ct_lay\"><summary>Layer (centang untuk menampilkan)</summary><div id=\"ct_layList\"></div></details>\n<div class=\"bar\" style=\"margin-top:8px\"><label>Lebar hasil <select id=\"ct_wpx\"><option value=\"1600\">1600 px</option><option value=\"2400\" selected>2400 px</option><option value=\"3600\">3600 px</option></select></label><label>Tebal garis <input type=\"number\" id=\"ct_lw\" value=\"2\" min=\"0.5\" max=\"10\" step=\"0.5\"> px</label>\n<button class=\"btn p\" id=\"ct_btnUse\" disabled>✔ Pakai di Hal. 6</button><button class=\"btn\" id=\"ct_btnCopy\" disabled>Salin PNG</button><button class=\"btn\" id=\"ct_btnPng\" disabled>Unduh PNG</button><button class=\"btn\" id=\"ct_btnSvg\" disabled>Unduh SVG</button><button class=\"btn\" id=\"ct_btnClear\" disabled>Hapus pilihan</button></div>\n<div id=\"ct_prev\"><div class=\"hint\" style=\"margin-bottom:6px\">Pratinjau hasil potongan</div><canvas id=\"ct_pc\"></canvas></div>\n</div></div>";
+var CTMK="<div class=\"ctw\">\n<div class=\"bar\"><b style=\"font-size:15px\">Potong gambar untuk Hal. 6 (Sketsa bidang tanah)</b><span style=\"flex:1\"></span><button class=\"btn\" id=\"ct_btnClose\">✕ Tutup</button></div>\n<input type=\"file\" id=\"ct_file\" accept=\".dxf,.pdf,image/*\" hidden>\n<div id=\"ct_drop\">Seret file <b>.dxf</b>, <b>.pdf</b>, atau gambar (PNG/JPG) ke sini, atau<br><br><button class=\"btn p\" id=\"ct_btnOpen\">Pilih file</button><br><br><span class=\"hint\">File DWG belum bisa dibuka. Simpan dulu sebagai DXF (AutoCAD: SAVEAS) atau ekspor ke PDF/PNG.</span></div>\n<div id=\"ct_main\">\n<div class=\"bar\"><button class=\"btn\" id=\"ct_btnOpen2\">Ganti file</button><span id=\"ct_fn\" class=\"hint\"></span><button class=\"btn s d\" id=\"ct_btnForget\" title=\"Hapus file yang tersimpan di browser ini\">Lupakan file tersimpan</button><button class=\"btn\" id=\"ct_btnMode\">Mode: Pilih area</button><button class=\"btn\" id=\"ct_zin\">＋</button><button class=\"btn\" id=\"ct_zout\">－</button><button class=\"btn\" id=\"ct_fit\">Pas layar</button>\n<label><input type=\"checkbox\" id=\"ct_mono\" checked> Hitam putih (DXF)</label><label><input type=\"checkbox\" id=\"ct_lock\" checked> Kunci rasio kotak sketsa</label><label id=\"ct_pgl\" style=\"display:none\">Hal. PDF <input type=\"number\" id=\"ct_pg\" min=\"1\" value=\"1\"></label></div>\n<div class=\"bar\"><input type=\"search\" id=\"ct_q\" placeholder=\"Cari teks di gambar DXF (mis. nomor bidang, nama)…\"><button class=\"btn\" id=\"ct_qprev\" title=\"Sebelumnya\">‹</button><button class=\"btn\" id=\"ct_qnext\" title=\"Berikutnya\">›</button><span id=\"ct_qinfo\" class=\"hint\"></span></div>\n<canvas id=\"ct_cv\"></canvas>\n<div id=\"ct_info\" class=\"hint\"></div>\n<details id=\"ct_lay\"><summary>Layer (centang untuk menampilkan)</summary><div id=\"ct_layList\"></div></details>\n<div class=\"bar\" style=\"margin-top:8px\"><label>Lebar hasil <select id=\"ct_wpx\"><option value=\"1600\">1600 px</option><option value=\"2400\" selected>2400 px</option><option value=\"3600\">3600 px</option></select></label><label>Tebal garis <input type=\"number\" id=\"ct_lw\" value=\"2\" min=\"0.5\" max=\"10\" step=\"0.5\"> px</label>\n<label>Penanda bidang hasil cari <select id=\"ct_hlm\"><option value=\"warna\">Merah + tebal</option><option value=\"hitam\">Hitam tebal (untuk cetak)</option><option value=\"off\">Tanpa penanda</option></select></label><button class=\"btn p\" id=\"ct_btnUse\" disabled>✔ Pakai di Hal. 6</button><button class=\"btn\" id=\"ct_btnCopy\" disabled>Salin PNG</button><button class=\"btn\" id=\"ct_btnPng\" disabled>Unduh PNG</button><button class=\"btn\" id=\"ct_btnSvg\" disabled>Unduh SVG</button><button class=\"btn\" id=\"ct_btnClear\" disabled>Hapus pilihan</button></div>\n<div id=\"ct_prev\"><div class=\"hint\" style=\"margin-bottom:6px\">Pratinjau hasil potongan</div><canvas id=\"ct_pc\"></canvas></div>\n</div></div>";
 (function(){
 var ov=document.createElement('div');ov.id='ctx';ov.innerHTML=CTMK;document.body.appendChild(ov);var RAS=null,PDFD=null;var $=function(i){return document.getElementById('ct_'+i)};
-var HM=[],hi=-1,cv=$('cv'),V={s:1,ox:0,oy:0},P=[],TX=[],Bd=null,LY={},hidden={},sel=null,mode='pilih',out=null,drag=null;
+var HM=[],hi=-1,HL=[],cv=$('cv'),V={s:1,ox:0,oy:0},P=[],TX=[],Bd=null,LY={},hidden={},sel=null,mode='pilih',out=null,drag=null;
 function info(t){$('info').textContent=t}
 function F(e,c,d){for(var i=0;i<e.p.length;i++)if(e.p[i][0]===c)return e.p[i][1];return d===undefined?null:d}
 function N(e,c,d){var v=F(e,c);if(v===null)return d;var x=parseFloat(v);return isNaN(x)?d:x}
@@ -685,6 +685,11 @@ function R(c,s,ox,oy,lw,mono,disp){
     if(p.z)c.closePath();
   }
   if(open)c.stroke();
+  if(HL.length){var m=disp?'warna':$('hlm').value;
+    if(m!=='off')HL.forEach(function(q){var a=q.p,cur=q.k===HM[hi];c.beginPath();c.moveTo(a[0]*s+ox,oy-a[1]*s);for(var j=2;j<a.length;j+=2)c.lineTo(a[j]*s+ox,oy-a[j+1]*s);c.closePath();
+      if(m==='warna'){c.fillStyle=cur&&disp?'rgba(224,0,0,.22)':'rgba(224,0,0,.12)';c.fill();c.strokeStyle='#e00000'}else c.strokeStyle='#000';
+      c.lineWidth=disp?(cur?4.5:3):lw*2.5;c.stroke()});
+    c.lineWidth=lw}
   TX.forEach(function(t){
     if(hidden[t.l])return;var px=t.h*s;if(disp&&px<3)return;
     c.save();c.translate(t.x*s+ox,oy-t.y*s);c.rotate(-t.r*Math.PI/180);
@@ -699,7 +704,7 @@ function draw(){
   var c=cv.getContext('2d');c.setTransform(d,0,0,d,0,0);c.fillStyle='#fff';c.fillRect(0,0,r.width,r.height);
   if(!Bd)return;
   R(c,V.s,V.ox,V.oy,1,$('mono').checked,true);
-  HM.slice(0,2000).forEach(function(k,j){var t=TX[k],x=t.x*V.s+V.ox,y=V.oy-t.y*V.s;c.beginPath();c.arc(x,y,j===hi?16:10,0,6.283);c.lineWidth=j===hi?3:2;c.strokeStyle=j===hi?'#e00000':'#ff8a00';c.stroke()});
+  HM.slice(0,2000).forEach(function(k,j){if(HL.some(function(q){return q.k===k}))return;var t=TX[k],x=t.x*V.s+V.ox,y=V.oy-t.y*V.s;c.beginPath();c.arc(x,y,j===hi?16:10,0,6.283);c.lineWidth=j===hi?3:2;c.strokeStyle=j===hi?'#e00000':'#ff8a00';c.stroke()});
   if(sel){
     var x=sel.x0*V.s+V.ox,y=V.oy-sel.y1*V.s,ww=(sel.x1-sel.x0)*V.s,hh=(sel.y1-sel.y0)*V.s;
     c.fillStyle='rgba(31,111,235,.12)';c.fillRect(x,y,ww,hh);c.strokeStyle='#1f6feb';c.lineWidth=1.5;c.setLineDash([6,4]);c.strokeRect(x,y,ww,hh);c.setLineDash([]);
@@ -750,6 +755,8 @@ function svg(){
     var d='M'+f(a[0])+' '+f(a[1]);for(var i=2;i<a.length;i+=2)d+='L'+f(a[i])+' '+f(a[i+1]);if(p.z)d+='Z';
     var c=mono?'#000':p.c;o+=p.f?'<path d="'+d+'" fill="'+c+'" stroke="none"/>':'<path d="'+d+'" stroke="'+c+'"/>';
   });
+  var hm=$('hlm').value;
+  if(hm!=='off')HL.forEach(function(q){var a=q.p,d='M'+f(a[0])+' '+f(a[1]);for(var i=2;i<a.length;i+=2)d+='L'+f(a[i])+' '+f(a[i+1]);o+='<path d="'+d+'Z" stroke="'+(hm==='warna'?'#e00000':'#000')+'" stroke-width="'+f(2.5*(+$('lw').value)/es)+'"'+(hm==='warna'?' fill="#e00000" fill-opacity=".12"':'')+'/>'});
   TX.forEach(function(t){
     if(hidden[t.l]||t.x<sel.x0-t.h*50||t.x>sel.x1+t.h*50||t.y<sel.y0-t.h*50||t.y>sel.y1+t.h*50)return;
     o+='<text transform="translate('+f(t.x)+' '+f(t.y)+') rotate('+f(t.r)+') scale(1 -1)" font-family="Arial, sans-serif" font-size="'+f(t.h)+'" text-anchor="'+['start','middle','end'][t.ha]+'" fill="'+(mono?'#000':t.c)+'" stroke="none">'+t.s.map(function(s,j){return '<tspan x="0" y="'+f((t.off+j*1.4)*t.h)+'">'+E(s)+'</tspan>'}).join('')+'</text>';
@@ -767,7 +774,7 @@ $('btnCopy').onclick=function(){
   },'image/png');
 };
 $('btnClear').onclick=function(){sel=null;clearOut();draw();info('')};
-$('wpx').onchange=$('lw').onchange=$('mono').onchange=function(){if(sel&&out)makeOut();draw()};
+$('wpx').onchange=$('lw').onchange=$('mono').onchange=$('hlm').onchange=function(){if(sel&&out)makeOut();draw()};
 $('btnMode').onclick=function(){
   mode=mode==='pilih'?'geser':'pilih';
   $('btnMode').textContent='Mode: '+(mode==='pilih'?'Pilih area':'Geser');
@@ -776,11 +783,29 @@ $('btnMode').onclick=function(){
 $('zin').onclick=function(){zoom(1.4)};$('zout').onclick=function(){zoom(1/1.4)};$('fit').onclick=fit;
 window.addEventListener('resize',draw);
 
+function pip(a,x,y){var r=false;for(var i=0,j=a.length-2;i<a.length;j=i,i+=2){var xi=a[i],yi=a[i+1],xj=a[j],yj=a[j+1];if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)r=!r}return r}
+function hlCalc(){
+  HL=[];if(!Bd||!HM.length)return;
+  var ba=(Bd.x1-Bd.x0)*(Bd.y1-Bd.y0),cand=[];
+  P.forEach(function(p){
+    if(p.f||hidden[p.l])return;var a=p.p,n=a.length;if(n<8)return;
+    if(!(p.z||(Math.abs(a[0]-a[n-2])<1e-6&&Math.abs(a[1]-a[n-1])<1e-6)))return;
+    var x0=1e300,x1=-1e300,y0=1e300,y1=-1e300,ar=0;
+    for(var j=0;j<n;j+=2){var x=a[j],y=a[j+1],k=(j+2)%n,xn=a[k],yn=a[k+1];if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;ar+=x*yn-xn*y}
+    ar=Math.abs(ar)/2;if(ar<=0||ar>ba*0.2)return;
+    cand.push({p:a,x0:x0,x1:x1,y0:y0,y1:y1,ar:ar});
+  });
+  HM.slice(0,300).forEach(function(k){
+    var t=TX[k],w=Math.max.apply(null,t.s.map(function(s){return s.length}))*0.6*t.h,dx=t.ha===0?w/2:t.ha===2?-w/2:0,r=t.r*Math.PI/180,tx=t.x+dx*Math.cos(r),ty=t.y+dx*Math.sin(r)+t.h*0.4,best=null;
+    cand.forEach(function(c){if(tx<c.x0||tx>c.x1||ty<c.y0||ty>c.y1)return;if(best&&c.ar>=best.ar)return;if(pip(c.p,tx,ty))best=c});
+    if(best&&!HL.some(function(h){return h.p===best.p}))HL.push({p:best.p,k:k});
+  });
+}
 function find(){
-  var q=$('q').value.trim().toLowerCase();HM=[];hi=-1;
+  var q=$('q').value.trim().toLowerCase();HM=[];hi=-1;HL=[];
   if(q)TX.forEach(function(t,k){if(!hidden[t.l]&&t.s.join(' ').toLowerCase().indexOf(q)>=0)HM.push(k)});
   $('qinfo').textContent=q&&!HM.length?'Tidak ditemukan':'';
-  if(HM.length)go(0);else draw();
+  hlCalc();if(HM.length)go(0);else draw();
 }
 function go(i){
   if(!HM.length)return;hi=(i+HM.length)%HM.length;
@@ -802,7 +827,7 @@ function layers(){
   });
 }
 function shown(){$('drop').style.display='none';$('main').style.display='block'}
-function setRaster(c,msg){RAS=c;P=[];TX=[];LY={};hidden={};sel=null;clearOut();HM=[];hi=-1;Bd={x0:0,y0:0,x1:c.width,y1:c.height};layers();fit();info(msg)}
+function setRaster(c,msg){RAS=c;P=[];TX=[];LY={};hidden={};sel=null;clearOut();HM=[];hi=-1;HL=[];Bd={x0:0,y0:0,x1:c.width,y1:c.height};layers();fit();info(msg)}
 function loadImg(f){shown();PDFD=null;$('pgl').style.display='none';var im=new Image();im.onload=function(){var k=Math.min(1,6000/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);var g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);setRaster(c,'Gambar '+c.width+' × '+c.height+' px. Seret pada gambar untuk memilih area.')};im.onerror=function(){info('Gambar tidak bisa dibaca.')};im.src=URL.createObjectURL(f)}
 function needPdf(){return new Promise(function(ok,no){if(window.pdfjsLib)return ok();var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';s.onload=function(){var w=document.createElement('script');w.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';w.onload=ok;w.onerror=no;document.head.appendChild(w)};s.onerror=no;document.head.appendChild(s)})}
 async function renderPdf(){if(!PDFD)return;info('Merender halaman…');try{var pg=await PDFD.getPage(+$('pg').value||1),v0=pg.getViewport({scale:1}),k=Math.min(4,6000/Math.max(v0.width,v0.height)),vp=pg.getViewport({scale:k}),c=document.createElement('canvas');c.width=Math.round(vp.width);c.height=Math.round(vp.height);var g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);await pg.render({canvasContext:g,viewport:vp}).promise;setRaster(c,'Halaman PDF '+($('pg').value||1)+' ('+c.width+' × '+c.height+' px). Seret pada gambar untuk memilih area.')}catch(e){info('Gagal merender PDF: '+e.message)}}
@@ -817,7 +842,7 @@ async function load(f){
   if(/^AC10/.test(head)){info('Ini file DWG. Simpan dulu sebagai DXF dari software CAD, lalu buka di sini.');return}
   if(head.indexOf('AutoCAD Binary DXF')===0){info('DXF biner belum didukung. Simpan ulang sebagai DXF ASCII.');return}
   var txt;try{txt=new TextDecoder('utf-8',{fatal:true}).decode(u8)}catch(e){txt=new TextDecoder('windows-1252').decode(u8)}
-  info('Membaca gambar…');sel=null;clearOut();HM=[];hi=-1;$('q').value='';$('qinfo').textContent='';
+  info('Membaca gambar…');sel=null;clearOut();HM=[];hi=-1;HL=[];$('q').value='';$('qinfo').textContent='';
   setTimeout(function(){
     try{parse(txt)}catch(e){info('Gagal membaca DXF: '+e.message);return}
     if(!Bd){info('Tidak ada entitas yang bisa digambar. Coba simpan DXF versi 2010 ASCII.');draw();return}

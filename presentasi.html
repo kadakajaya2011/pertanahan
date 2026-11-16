@@ -219,7 +219,7 @@ h1 .gold,h2 .gold{background:linear-gradient(90deg,#f0d99c,#d7ad58,#fff1c4,#d7ad
 .az-nav{top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:50%;font-size:1.6rem}.az-prev{left:16px}.az-next{right:16px}
 .az-cap{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);color:#d5deea;background:#17324dcc;padding:6px 14px;border-radius:20px;font-size:.9rem;white-space:nowrap}
 @media(max-width:900px){.hub-wrap,.apps{grid-template-columns:1fr}.slide:after{opacity:.5}.hub{max-height:none}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
 </style>
 </head>
 <body>
@@ -566,7 +566,7 @@ go(0);
   slides.forEach((s,i)=>s.dataset.no=String(i+1).padStart(2,'0'));
   const baseGo=go;
   go=function(i){baseGo(i);const m=slides[current].querySelector('.metric');
-    if(m&&!window.matchMedia('(prefers-reduced-motion:reduce)').matches){const t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/1200);m.textContent=Math.round(300*(1-Math.pow(1-p,3)))+'+';if(p<1)requestAnimationFrame(f)})(t0)}};
+    if(m){const t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/1200);m.textContent=Math.round(300*(1-Math.pow(1-p,3)))+'+';if(p<1)requestAnimationFrame(f)})(t0)}};
   go(current);
 })();
 </script>

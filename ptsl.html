@@ -85,6 +85,7 @@ body.ppb{margin:0}
 #ct_prev canvas{max-width:100%;height:auto;background:#fff;border:1px solid var(--b)}
 #ct_lay{font-size:13px;margin-top:8px}#ct_lay div{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px}
 body.ppb #ctx{display:none!important}
+.t-aj td.c-luas input:focus{outline:2px solid #2563eb;outline-offset:-1px;background:#fff;border-radius:3px}
 </style></head><body>
 <header><div><h1>Pengajuan PTSL — Desa Kadakajaya</h1><small>Kec. Tanjungsari, Kab. Sumedang</small></div><span style="flex:1"></span><button class="btn s" onclick="dbExp()">Ekspor DB (JSON)</button><button class="btn s" onclick="dbImp()">Impor DB (JSON)</button><span id="sbmenu"></span></header>
 <div class="w">
@@ -116,7 +117,16 @@ function histSetP(r,s,t,n){r.hist=r.hist||[];const l=lastH(r,true);if(l&&l.s==s)
 function setPs(r,s,t,n){r.pst=s;r.ptg=t;r.pno=n;histSetP(r,s,t,n)}
 function chPs(id,v){const r=S.aj.find(x=>x.id==id);setPs(r,v,TODAY(),r.pno||'');save();render(1)}
 function chPt(id,v){const r=S.aj.find(x=>x.id==id);r.ptg=v;histSetP(r,r.pst||PST[0],v,r.pno||'');save();render(1)}
-function chLs(id,v){const r=S.aj.find(x=>x.id==id);v=v.trim();if(v&&!/^\d+([.,]\d+)*$/.test(v)){alert('Luas harus berupa angka dalam m², mis. 250 atau 250,5.');return render(1)}r.luas=v;save();render(1)}
+let _st=null,LSF=null;const saveSoon=()=>{clearTimeout(_st);_st=setTimeout(()=>{_st=null;save()},500)};
+addEventListener('pagehide',()=>{if(_st){clearTimeout(_st);_st=null;save()}});
+function lsCommit(el){const r=S.aj.find(x=>x.id==el.dataset.id);if(!r)return true;const v=el.value.trim();if(v==String(r.luas??''))return true;
+ if(v&&!/^\d+([.,]\d+)*$/.test(v)){alert('Luas harus berupa angka dalam m², mis. 250 atau 250,5.');el.value=r.luas||'';el.focus();el.select();return false}
+ r.luas=v;el.value=v;saveSoon();return true}
+function chLs(id,v,el){if(el)lsCommit(el)}
+function lsKey(e,el){const k=e.key;if(e.isComposing||(k!='ArrowDown'&&k!='ArrowUp'&&k!='Enter'))return;e.preventDefault();
+ const L=[...document.querySelectorAll('.t-aj td.c-luas input')],i=L.indexOf(el),d=(k=='ArrowUp'||(k=='Enter'&&e.shiftKey))?-1:1,n=L[i+d];
+ if(!lsCommit(el))return;
+ if(n){n.focus();n.select()}else{const pages=Math.max(1,Math.ceil(CUR.length/PER));if(d>0&&pg<pages){LSF='first';pg++;render()}else if(d<0&&pg>1){LSF='last';pg--;render()}}}
 function chPn(id,v){const r=S.aj.find(x=>x.id==id);r.pno=v.trim();histSetP(r,r.pst||PST[0],r.ptg||'',r.pno);save();render(1)}
 function bulkP(){const s=$('#bps').value,t=$('#btp').value,n=$('#bpn').value.trim();if(!s&&!t&&!n)return alert('Pilih status pengumuman, tanggal, dan/atau isi nomor dulu.');
  const rs=S.aj.filter(r=>SEL.has(r.id));if(!rs.length)return;
@@ -265,12 +275,12 @@ function render(keep){const o0=$('.tw'),sv=o0?[o0.scrollTop,o0.scrollLeft]:[0,0]
  $('#view').innerHTML=`<div class="bar"><select class="flt" id="qcol" title="Cari di kolom" onchange="qc=this.value;pg=1;render()"><option value="">Semua kolom</option>${cols.map(c=>`<option value="${c}" ${qc==c?'selected':''}>${H[c]}</option>`).join('')}</select><input type="search" placeholder="${qc&&H[qc]?'Cari di kolom '+esc(H[qc])+'…':'Cari di semua kolom…'}" value="${esc(q)}" oninput="q=this.value.toLowerCase();pg=1;render();const n=document.querySelector('.bar input[type=search]');n.focus();n.setSelectionRange(n.value.length,n.value.length)">
  ${tab=='aj'?`<select class="flt" onchange="F.st=this.value;pg=1;render()"><option value="">Semua status</option>${STATUS.map(s=>`<option ${F.st==s?'selected':''}>${s}</option>`).join('')}</select>${dBar()}<select class="flt" title="Status pengumuman" onchange="F.ps=this.value;pg=1;render()"><option value="">Semua status pengumuman</option>${PST.map(s=>`<option ${F.ps==s?'selected':''}>${s}</option>`).join('')}</select>${pgBar()}<select class="flt" onchange="F.kd=this.value;pg=1;render()">${KDOPT.map(o=>`<option value="${o[0]}" ${F.kd==o[0]?'selected':''}>${o[1]}</option>`).join('')}</select><select class="flt" title="Urutkan data" onchange="SORT.k=this.value;if(!SORT.d)SORT.d=1;pg=1;render()">${SORTOPT.map(o=>`<option value="${o[0]}" ${SORT.k==o[0]?'selected':''}>${o[1]}</option>`).join('')}</select><button class="btn s" title="Balik arah urutan" onclick="SORT.d=-SORT.d;pg=1;render()">${SORT.d>0?'▲ A-Z':'▼ Z-A'}</button>`:''}${tab=='aj'||tab=='pd'?wilBar():''}<button class="btn p" onclick="edit()">+ Tambah</button>
  ${tab!='aj'?`<button class="btn" onclick="imp()">Impor CSV</button>`:``}
- <button class="btn" onclick="exp()">Ekspor CSV</button>${tab=='aj'&&SB.isAdmin()?`<button class="btn" onclick="gsSync()">Sinkron ke Sheet</button><button class="btn s" title="Pengaturan Google Sheet" onclick="gsCfg()">⚙</button><button class="btn s" title="Tes koneksi Google Sheet" onclick="gsTest()">Tes</button>`:''}${tab=='aj'?'<button class="btn" onclick="nubGap()">Cari NUB terlewat</button>':''}<button class="btn" onclick="window.print()">Cetak</button>
+ <button class="btn" onclick="exp()">Ekspor CSV</button>${tab=='aj'?'<button class="btn p" onclick="xlMenu()">Excel ▾</button><button class="btn" title="Tambahkan Desa Kadakajaya Kec. Tanjungsari Kab. Sumedang pada alamat yang NIK-nya ada di Data Penduduk" onclick="lengkapiAlamat()">Lengkapi Alamat</button>':''}${tab=='aj'&&SB.isAdmin()?`<button class="btn" onclick="gsSync()">Sinkron ke Sheet</button><button class="btn s" title="Pengaturan Google Sheet" onclick="gsCfg()">⚙</button><button class="btn s" title="Tes koneksi Google Sheet" onclick="gsTest()">Tes</button>`:''}${tab=='aj'?'<button class="btn" onclick="nubGap()">Cari NUB terlewat</button>':''}<button class="btn" onclick="window.print()">Cetak</button>
  <button class="btn d" onclick="clr()">Kosongkan</button></div>
  ${tab=='aj'?`<div class="bar" style="background:var(--c);border:1px solid var(--b);border-radius:8px;padding:8px"><b id="selc">${SEL.size} dipilih</b><button class="btn s" onclick="selAll(true)">Pilih semua hasil filter (${rows.length})</button><button class="btn s" onclick="SEL.clear();render()">Batal pilih</button><span style="flex:1"></span><span>Ubah masal status:</span><select id="bst" class="flt"><option value="">— status tidak diubah —</option>${STATUS.map(s=>`<option>${s}</option>`).join('')}</select><input type="date" id="btg" class="flt" title="Tanggal (kosong = hari ini bila status diubah)"><button class="btn p" id="bapp" onclick="bulk()" ${SEL.size?'':'disabled'}>Terapkan</button></div><div class="bar" style="background:var(--c);border:1px solid var(--b);border-radius:8px;padding:8px"><span style="flex:1"></span><span>Ubah masal pengumuman:</span><select id="bps" class="flt"><option value="">— status pengumuman tidak diubah —</option>${PST.map(s=>`<option>${s}</option>`).join('')}</select><input type="date" id="btp" class="flt" title="Tanggal pengumuman (kosong = hari ini bila status diubah)"><input id="bpn" class="flt" style="width:160px" placeholder="No. pengumuman" title="Kosong = nomor tidak diubah"><button class="btn p" id="bapp2" onclick="bulkP()" ${SEL.size?'':'disabled'}>Terapkan</button></div>`:''}
  <div class="box"><div class="tw"><table class="t-${tab}"><thead><tr>${tab=='aj'?`<th class="ac"><input type="checkbox" id="hcb" ${allSel?'checked':''} onchange="selAll(this.checked)"></th>`:''}<th class="ac">Aksi</th><th class="c-no">No</th>${cols.map(c=>`<th class="srt c-${c}" onclick="srt('${c}')">${H[c]}${SORT.k==c?(SORT.d>0?' ▲':' ▼'):''}</th>`).join('')}</tr></thead><tbody>
- ${sl.map((r,i)=>`<tr>${tab=='aj'?`<td class="ac"><input type="checkbox" ${SEL.has(r.id)?'checked':''} onchange="selOne('${r.id}',this.checked)"></td>`:''}<td class="ac"><button class="btn s" onclick="edit('${r.id}')">Ubah</button> <button class="btn s d" onclick="del('${r.id}')">Hapus</button></td><td class="c-no">${(pg-1)*PER+i+1}</td>${cols.map(c=>`<td class="c-${c}">${tab=='aj'&&c=='nop'?`<span class="nf">${esc(r.nop)}</span><span class="nk">${esc(kodeOf(r))}</span>`:c=='tgl'?fd(r[c]):c=='namawp'?esc(wpOf(r)):c=='status'?`<select class="flt" title="${esc(rh(r))}" onchange="chSt('${r.id}',this.value)">${STATUS.map(s=>`<option ${r.status==s?'selected':''}>${s}</option>`).join('')}</select>`:c=='tglst'?`<input type="date" class="flt" value="${esc(r.tglst)}" onchange="chTg('${r.id}',this.value)">`:c=='pst'?`<select class="flt" title="${esc(rh(r))}" onchange="chPs('${r.id}',this.value)">${PST.map(s=>`<option ${(r.pst||PST[0])==s?'selected':''}>${s}</option>`).join('')}</select>`:c=='ptg'?`<input type="date" class="flt" value="${esc(r.ptg)}" onchange="chPt('${r.id}',this.value)">`:c=='pno'?`<input class="flt" style="width:130px" value="${esc(r.pno)}" onchange="chPn('${r.id}',this.value)">`:c=='luas'?`<input class="flt" inputmode="decimal" style="width:90px;text-align:right" placeholder="m²" value="${esc(r.luas)}" onchange="chLs('${r.id}',this.value)">`:c=='jumlah'?(cnt[r.nik]||''):c=='yuridis'?esc(yu(r[c])):esc(r[c])}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${cols.length+2}" class="empty">Belum ada data.${tab!='aj'?' Gunakan Impor CSV atau Tambah.':''}</td></tr>`}
- </tbody></table></div><div class="pg"><span>${rows.length} data${tab=='aj'&&isDupF(F.kd)?' · '+new Set(rows.map(r=>dupGrp(r,F.kd))).size+' kelompok sama':''}</span><select class="flt" title="Jumlah data per halaman" onchange="PER=PERSEL=+this.value;try{localStorage.setItem('ptsl_per',PERSEL)}catch(e){}pg=1;render()">${[25,50,75,100].map(n=>`<option value="${n}" ${PERSEL==n?'selected':''}>${n} / halaman</option>`).join('')}</select><button class="btn s" ${pg<=1?'disabled':''} onclick="pg--;render()">‹</button><span>${pg}/${pages}</span><button class="btn s" ${pg>=pages?'disabled':''} onclick="pg++;render()">›</button></div></div>`;if(keep){const n=$('.tw');if(n){n.scrollTop=sv[0];n.scrollLeft=sv[1]}}freezeCols()}
+ ${sl.map((r,i)=>`<tr>${tab=='aj'?`<td class="ac"><input type="checkbox" ${SEL.has(r.id)?'checked':''} onchange="selOne('${r.id}',this.checked)"></td>`:''}<td class="ac"><button class="btn s" onclick="edit('${r.id}')">Ubah</button> <button class="btn s d" onclick="del('${r.id}')">Hapus</button></td><td class="c-no">${(pg-1)*PER+i+1}</td>${cols.map(c=>`<td class="c-${c}">${tab=='aj'&&c=='nop'?`<span class="nf">${esc(r.nop)}</span><span class="nk">${esc(kodeOf(r))}</span>`:c=='tgl'?fd(r[c]):c=='namawp'?esc(wpOf(r)):c=='status'?`<select class="flt" title="${esc(rh(r))}" onchange="chSt('${r.id}',this.value)">${STATUS.map(s=>`<option ${r.status==s?'selected':''}>${s}</option>`).join('')}</select>`:c=='tglst'?`<input type="date" class="flt" value="${esc(r.tglst)}" onchange="chTg('${r.id}',this.value)">`:c=='pst'?`<select class="flt" title="${esc(rh(r))}" onchange="chPs('${r.id}',this.value)">${PST.map(s=>`<option ${(r.pst||PST[0])==s?'selected':''}>${s}</option>`).join('')}</select>`:c=='ptg'?`<input type="date" class="flt" value="${esc(r.ptg)}" onchange="chPt('${r.id}',this.value)">`:c=='pno'?`<input class="flt" style="width:130px" value="${esc(r.pno)}" onchange="chPn('${r.id}',this.value)">`:c=='luas'?`<input class="flt" inputmode="decimal" style="width:90px;text-align:right" placeholder="m²" value="${esc(r.luas)}" data-id="${r.id}" onfocus="this.select()" onkeydown="lsKey(event,this)" onchange="chLs('${r.id}',this.value,this)">`:c=='jumlah'?(cnt[r.nik]||''):c=='yuridis'?esc(yu(r[c])):esc(r[c])}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${cols.length+2}" class="empty">Belum ada data.${tab!='aj'?' Gunakan Impor CSV atau Tambah.':''}</td></tr>`}
+ </tbody></table></div><div class="pg"><span>${rows.length} data${tab=='aj'&&isDupF(F.kd)?' · '+new Set(rows.map(r=>dupGrp(r,F.kd))).size+' kelompok sama':''}</span><select class="flt" title="Jumlah data per halaman" onchange="PER=PERSEL=+this.value;try{localStorage.setItem('ptsl_per',PERSEL)}catch(e){}pg=1;render()">${[25,50,75,100].map(n=>`<option value="${n}" ${PERSEL==n?'selected':''}>${n} / halaman</option>`).join('')}</select><button class="btn s" ${pg<=1?'disabled':''} onclick="pg--;render()">‹</button><span>${pg}/${pages}</span><button class="btn s" ${pg>=pages?'disabled':''} onclick="pg++;render()">›</button></div></div>`;if(keep){const n=$('.tw');if(n){n.scrollTop=sv[0];n.scrollLeft=sv[1]}}freezeCols();if(LSF){const L=[...document.querySelectorAll('.t-aj td.c-luas input')],n=LSF=='first'?L[0]:L[L.length-1];LSF=null;if(n){n.focus();n.select()}}}
 function yu(v){return String(v||'').replace(/^Y/i,'')}
 function pgBar(){const ns=new Map(),ts=new Map();
  S.aj.forEach(r=>{const n=String(r.pno||'').trim(),t=r.ptg||'';if(n&&(!F.pt||t==F.pt))ns.set(n,(ns.get(n)||0)+1);if(t&&(!F.pn||n==F.pn))ts.set(t,(ts.get(t)||0)+1)});
@@ -286,6 +296,81 @@ function edit(id){const cols=T[tab].cols.filter(c=>c!='jumlah'),r=S[tab].find(x=
  modal(`<h3 style="margin-top:0">${id?'Ubah':'Tambah'} — ${T[tab].n}</h3><div class="g">${cols.map(c=>`<div class="${c=='alamat'||c=='nop'||c=='ket'?'f':''}"><label>${H[c]}</label>${inp(c)}${c=='nik'&&tab=='aj'?'<p class="hint">Isi NIK 16 digit lalu data diambil dari Data Penduduk.</p>':''}${c=='nop'&&tab=='aj'?'<input id="nq" placeholder="Cari di DHKP: NOP / nama WP / blok…" oninput="sug()" style="margin-top:6px"><select id="sug" onchange="if(this.value)$(\'#f_nop\').value=this.value;ni(1)" style="margin-top:6px"><option value="">— pilih NOP dari DHKP (cocok nama) —</option></select><p class="hint" id="nopinfo"></p>':''}</div>`).join('')}</div>
  ${tab=='aj'&&id?`<div id="rwy">${rwHtml(r)}</div>`:''}<p id="err" style="color:var(--d)"></p><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" onclick="closeM()">Batal</button><button class="btn p" onclick="sv('${id||''}')">Simpan</button></div>`);
  if(tab=='aj'){$('#f_nik').addEventListener('input',lk);$('#f_nama').addEventListener('input',sug);$('#f_nop').addEventListener('input',()=>ni(1));$('#f_kode').addEventListener('input',kd);sug();ni()}}
+
+/* ===== Ekspor / Impor Excel (format PTSL_Kadakajaya.xlsx) ===== */
+let EXJS=null;
+function loadEx(){if(window.ExcelJS)return Promise.resolve(window.ExcelJS);return EXJS||(EXJS=new Promise((ok,ko)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js';s.onload=()=>ok(window.ExcelJS);s.onerror=()=>{EXJS=null;ko(new Error('Pustaka Excel gagal dimuat. Periksa koneksi internet.'))};document.head.appendChild(s)}))}
+const XH=['No','NIK','Nama Lengkap','Tempat Lahir','Tanggal Lahir','Pekerjaan','Alamat','Kode','NOP','Nama WP','NUB','Yuridis','NIB','Luas (m²)','Jml Diajukan','Status','Tanggal Status','Status Pengumuman','Tanggal Pengumuman','No. Pengumuman',...STATUS.map(s=>'Tgl '+s),'Keterangan'];
+const XW=[5,18,30,16,13,24,42,10,26,26,8,12,9,10,12,22,14,18,16,14,14,18,22,14,18,12,14,24];
+const xnorm=h=>String(h??'').toLowerCase().replace(/\s+/g,' ').trim();
+function xlMenu(){modal(`<h3 style="margin-top:0">Excel — Pengajuan PTSL</h3><p class="hint">Kolom sama dengan file PTSL_Kadakajaya.xlsx (${XH.length} kolom, sheet "Pengajuan PTSL").</p>
+ <div style="display:flex;flex-direction:column;gap:8px"><button class="btn p" onclick="xlExport('all')">Ekspor semua data (${S.aj.length})</button><button class="btn" onclick="xlExport('filter')">Ekspor hasil filter/urutan saat ini (${CUR.length})</button><button class="btn" onclick="xlImport()">Impor dari Excel (.xlsx)…</button><button class="btn s" onclick="xlTemplate()">Unduh template kosong</button></div>
+ <p class="hint">Impor: baris dicocokkan dengan data yang ada lewat NIK + NOP. Cocok → diperbarui (hanya sel yang terisi di Excel; sel kosong tidak menghapus data). Tidak cocok → ditambahkan sebagai pengajuan baru. Kolom Kode, Nama WP, dan Jml Diajukan dihitung otomatis. Jika NIK ada di Data Penduduk, alamat diberi tambahan "${DESA_SFX}".</p>
+ <div style="display:flex;justify-content:flex-end"><button class="btn" onclick="closeM()">Tutup</button></div>`)}
+function xlStamp(){return TODAY()}
+async function xlBook(rows){const E=await loadEx(),wb=new E.Workbook();wb.creator='PTSL Kadakajaya';
+ const ws=wb.addWorksheet('Pengajuan PTSL',{views:[{state:'frozen',ySplit:1}]});
+ ws.columns=XH.map((h,i)=>({header:h,width:XW[i]||14,style:{numFmt:'@'}}));
+ ws.getRow(1).font={bold:true};ws.autoFilter={from:{row:1,column:1},to:{row:1,column:XH.length}};
+ rows.forEach(a=>{const r=ws.addRow(a);r.eachCell({includeEmpty:true},c=>{if(typeof c.value=='string')c.numFmt='@'})});
+ return new Blob([await wb.xlsx.writeBuffer()],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})}
+function xlRow(r,i,cnt){const hv=s=>{const x=(r.hist||[]).filter(y=>y.k!='p'&&y.s==s).pop();return x?fd(x.t):''};
+ const lu=String(r.luas??'').trim();
+ return[String(i+1),r.nik||'',r.nama||'',r.tempat||'',fd(r.tgl),r.pekerjaan||'',r.alamat||'',kodeOf(r),r.nop||'',wpOf(r),r.nub||'',yu(r.yuridis),r.nib||'',/^\d+(\.\d+)?$/.test(lu)?+lu:lu,String(cnt[r.nik]||''),r.status||'',fd(r.tglst),r.pst||PST[0],fd(r.ptg),r.pno||'',...STATUS.map(hv),r.ket||'']}
+async function xlExport(scope){document.body.style.cursor='wait';try{
+ const cnt={};S.aj.forEach(x=>cnt[x.nik]=(cnt[x.nik]||0)+1);const src=scope=='filter'?CUR:S.aj;
+ if(!src.length)return alert('Tidak ada data untuk diekspor.');
+ closeM();await dl('PTSL_Kadakajaya_'+xlStamp()+'.xlsx',await xlBook(src.map((r,i)=>xlRow(r,i,cnt))))}
+ catch(e){alert('Gagal ekspor Excel:\n'+(e.message||e))}finally{document.body.style.cursor=''}}
+async function xlTemplate(){document.body.style.cursor='wait';try{closeM();await dl('Template_PTSL_Kadakajaya.xlsx',await xlBook([]))}catch(e){alert('Gagal membuat template:\n'+(e.message||e))}finally{document.body.style.cursor=''}}
+function xlImport(){closeM();const f=document.createElement('input');f.type='file';f.accept='.xlsx';
+ f.onchange=async()=>{if(!f.files[0])return;document.body.style.cursor='wait';try{await xlRun(f.files[0])}catch(e){alert('Gagal impor Excel:\n'+(e.message||e))}finally{document.body.style.cursor=''}};f.click()}
+function xcv(v){if(v==null)return'';if(v instanceof Date)return isNaN(v)?'':String(v.getUTCDate()).padStart(2,'0')+'-'+String(v.getUTCMonth()+1).padStart(2,'0')+'-'+v.getUTCFullYear();
+ if(typeof v=='object'){if(v.richText)return v.richText.map(x=>x.text).join('').trim();if('result' in v)return xcv(v.result);if(v.text!=null)return xcv(v.text);return''}
+ return String(v).trim()}
+function xdate(v){v=nd(v);if(!v)return'';const m=v.match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!m)return null;const d=new Date(Date.UTC(+m[1],+m[2]-1,+m[3]));return d.getUTCMonth()==+m[2]-1&&d.getUTCDate()==+m[3]?v:null}
+async function xlRun(file){const E=await loadEx(),wb=new E.Workbook();await wb.xlsx.load(await file.arrayBuffer());
+ const ws=wb.getWorksheet('Pengajuan PTSL')||wb.worksheets[0];if(!ws)return alert('File Excel tidak memiliki sheet.');
+ const ix={};ws.getRow(1).eachCell({includeEmpty:false},(c,n)=>{const h=xnorm(xcv(c.value));if(h&&!(h in ix))ix[h]=n});
+ const g=(row,h)=>{const n=ix[xnorm(h)];return n?xcv(row.getCell(n).value):''};
+ if(!ix['nik'])return alert('Kolom "NIK" tidak ditemukan di baris pertama sheet "'+ws.name+'". Gunakan format file PTSL_Kadakajaya.xlsx.');
+ const pm=new Map(S.pd.map(p=>[p.nik,p])),ex=new Map(),claimed=new Set(),plan=[],skip=[];let nNew=0,nUpd=0;S.aj.forEach(r=>{const k=r.nik+'|'+(r.nop||'');(ex.get(k)||ex.set(k,[]).get(k)).push(r)});
+ ws.eachRow({includeEmpty:false},(row,rn)=>{if(rn==1)return;
+  const nik=g(row,'NIK').replace(/\D/g,'');const any=XH.some(h=>g(row,h));if(!any)return;
+  if(!/^\d{16}$/.test(nik)){skip.push('Baris '+rn+': NIK bukan 16 digit ('+(g(row,'NIK')||'kosong')+')');return}
+  const nop=g(row,'NOP'),key=nik+'|'+nop,old=(ex.get(key)||[]).find(x=>!claimed.has(x)),p=pm.get(nik),d={nik,nop},bad=[];
+  const set=(f,v)=>{if(v!=='')d[f]=v};
+  set('nama',g(row,'Nama Lengkap'));set('tempat',g(row,'Tempat Lahir'));set('pekerjaan',g(row,'Pekerjaan'));set('nub',g(row,'NUB'));set('ket',g(row,'Keterangan'));set('pno',g(row,'No. Pengumuman'));
+  let tg=xdate(g(row,'Tanggal Lahir'));if(tg===null){bad.push('Tanggal Lahir');tg=''}set('tgl',tg);
+  let yu_=g(row,'Yuridis').replace(/^Y/i,'').trim();if(/^\d+$/.test(yu_))yu_+='/2026';set('yuridis',yu_);
+  let nib=g(row,'NIB');if(/^\d{1,4}$/.test(nib))nib=nib.padStart(5,'0');set('nib',nib);
+  let lu=g(row,'Luas (m²)')||g(row,'Luas');set('luas',lu);
+  if(lu&&!/^\d+([.,]\d+)*$/.test(lu)){bad.push('Luas');delete d.luas}
+  let a=g(row,'Alamat');if(!a&&!old&&p)a=p.alamat||'';if(p&&(a||!old))a=withDesa(a);set('alamat',a);
+  if(!old&&p){if(!d.nama)d.nama=p.nama||'';if(!d.tempat&&p.tempat)d.tempat=p.tempat;if(!d.tgl&&p.tgl)d.tgl=p.tgl}
+  if(!old&&!d.nama){skip.push('Baris '+rn+': Nama kosong dan NIK '+nik+' tidak ada di Data Penduduk');return}
+  const sv_=g(row,'Status'),st=STATUS.find(x=>xnorm(x)==xnorm(sv_));if(sv_&&!st)bad.push('Status "'+sv_+'"');if(st)d.status=st;
+  const ps=PST.find(x=>xnorm(x)==xnorm(g(row,'Status Pengumuman')));if(ps)d.pst=ps;
+  let t=xdate(g(row,'Tanggal Status'));if(t===null){bad.push('Tanggal Status');t=''}if(t)d.tglst=t;
+  t=xdate(g(row,'Tanggal Pengumuman'));if(t===null){bad.push('Tanggal Pengumuman');t=''}if(t)d.ptg=t;
+  d.dates={};STATUS.forEach(s=>{let x=xdate(g(row,'Tgl '+s));if(x===null){bad.push('Tgl '+s);x=''}if(x)d.dates[s]=x});
+  if(bad.length)skip.push('Baris '+rn+' (diimpor, kolom diabaikan): '+bad.join(', '));
+  plan.push({d,old});if(old){claimed.add(old);nUpd++}else nNew++});
+ if(!plan.length)return alert('Tidak ada baris data yang dapat diimpor.'+(skip.length?'\n\n'+skip.slice(0,10).join('\n'):''));
+ const warn=skip.length?'\n\nCatatan ('+skip.length+'):\n'+skip.slice(0,8).join('\n')+(skip.length>8?'\n… dan '+(skip.length-8)+' lainnya':''):'';
+ if(!confirm('Impor dari "'+file.name+'":\n• '+nNew+' pengajuan baru\n• '+nUpd+' pengajuan cocok (diperbarui)\n\nLanjutkan?'+warn))return;
+ plan.forEach(({d,old})=>{let r=old,isNew=!r;
+  if(isNew){r={id:uid(),nik:d.nik,nama:'',tempat:'',tgl:'',pekerjaan:'',alamat:'',nop:d.nop||'',kode:'',namawp:'',nub:'',yuridis:'',nib:'',luas:'',status:STATUS[0],tglst:'',pst:PST[0],ptg:'',pno:'',ket:'',hist:[]};S.aj.push(r)}
+  ['nama','tempat','tgl','pekerjaan','alamat','nub','yuridis','nib','luas','ket'].forEach(f=>{if(d[f]!==undefined)r[f]=d[f]});
+  r.kode=r.nop&&r.nop.length>=22?r.nop.slice(14,17)+r.nop.slice(18,22):'';r.namawp=r.nop?(S.dh.find(x=>x.nop==r.nop)||{}).nama||'-':'';
+  r.hist=r.hist||[];
+  STATUS.forEach(s=>{const t=d.dates[s];if(!t)return;const e=[...r.hist].reverse().find(h=>h.k!='p'&&h.s==s);if(e)e.t=t;else r.hist.push({s,t})});
+  if(isNew){const np=r.hist.filter(h=>h.k=='p'),ns=r.hist.filter(h=>h.k!='p').sort((a,b)=>(a.t<b.t?-1:a.t>b.t?1:STATUS.indexOf(a.s)-STATUS.indexOf(b.s)));r.hist=ns.concat(np)}
+  if(d.status||d.tglst){const s=d.status||r.status,t=d.tglst||(d.status&&d.status!=r.status?(d.dates[s]||TODAY()):r.tglst)||'';r.status=s;r.tglst=t;histSet(r,s,t)}
+  else if(isNew&&r.hist.some(h=>h.k!='p')){const l=lastH(r,false);r.status=l.s;r.tglst=l.t||''}
+  if(d.pst||d.ptg||d.pno!==undefined){const s=d.pst||r.pst||PST[0],t=d.ptg||r.ptg||'',n=d.pno!==undefined?d.pno:(r.pno||'');if(s!=PST[0]||t||n||lastH(r,true)){if(s!=(r.pst||PST[0])||t!=(r.ptg||'')||n!=(r.pno||'')||!lastH(r,true))histSetP(r,s,t,n);r.pst=s;r.ptg=t;r.pno=n}}
+ });
+ save();render();alert('Impor selesai: '+nNew+' baru, '+nUpd+' diperbarui.'+(skip.length?'\n\nCatatan ('+skip.length+'):\n'+skip.slice(0,10).join('\n')+(skip.length>10?'\n… dan '+(skip.length-10)+' lainnya':''):''))}
 const nubKey=v=>{v=String(v||'').trim();return /^\d+$/.test(v)?v.replace(/^0+(?=\d)/,''):v.toLowerCase()};
 function nubGap(){
  const rows=S.aj.filter(r=>String(r.nub||'').trim()),grp={},oth=[],set=new Set();
@@ -322,7 +407,14 @@ function hDel(id,i){const r=S.aj.find(x=>x.id==id);if(!r)return;
 function kd(){const k=$('#f_kode').value.replace(/\D/g,'');if(k.length!=7)return;const n='32.13.030.025.'+k.slice(0,3)+'.'+k.slice(3)+'-0';$('#f_nop').value=n;const d=S.dh.find(x=>x.nop==n);$('#f_namawp').value=d?d.nama:'-';ni()}
 function ni(f){const v=$('#f_nop').value.trim(),d=S.dh.find(x=>x.nop==v),e=$('#nopinfo');if(f){$('#f_kode').value=v.length>=22?v.slice(14,17)+v.slice(18,22):'';$('#f_namawp').value=d?d.nama:(v?'-':'')}
  if(e)e.textContent=v?(d?`DHKP: ${d.nama} — ${d.alamat||''} — ${d.blok||''}`:'NOP tidak ditemukan di DHKP'):''}
-function lk(){const v=$('#f_nik').value.trim();if(v.length!=16)return;const p=S.pd.find(x=>x.nik==v);if(p){['nama','tempat','tgl','alamat'].forEach(c=>$('#f_'+c).value=p[c]||'');sug()}}
+const DESA_SFX='Desa Kadakajaya Kec. Tanjungsari Kab. Sumedang';
+function withDesa(a){a=String(a||'').trim();if(!a)return DESA_SFX;if(/kadakajaya/i.test(a)||OUTRX.test(a))return a;return a+' '+DESA_SFX}
+function lk(){const v=$('#f_nik').value.trim();if(v.length!=16)return;const p=S.pd.find(x=>x.nik==v);if(p){['nama','tempat','tgl','alamat'].forEach(c=>$('#f_'+c).value=p[c]||'');$('#f_alamat').value=withDesa(p.alamat);sug()}}
+function lengkapiAlamat(){const pm=new Map(S.pd.map(p=>[p.nik,p]));
+ const rs=S.aj.filter(r=>{const p=pm.get(r.nik);return p&&withDesa(r.alamat||p.alamat)!==(r.alamat||'')});
+ if(!rs.length)return alert('Semua alamat pengajuan yang NIK-nya ada di Data Penduduk sudah lengkap.');
+ if(!confirm('Tambahkan "'+DESA_SFX+'" pada alamat '+rs.length+' pengajuan yang NIK-nya ada di Data Penduduk?\n(Alamat yang sudah memuat Kadakajaya atau desa/kecamatan lain tidak diubah.)'))return;
+ rs.forEach(r=>{r.alamat=withDesa(r.alamat||pm.get(r.nik).alamat)});save();render(1);alert(rs.length+' alamat dilengkapi.')}
 function sug(){const nq=$('#nq'),n=((nq&&nq.value)||$('#f_nama').value||'').trim().toLowerCase(),s=$('#sug');if(!s)return;const m=n?S.dh.filter(x=>[x.nop,x.nama,x.blok,x.alamat].join(' ').toLowerCase().includes(n)):[];
  s.innerHTML='<option value="">— pilih NOP dari DHKP (cocok nama) —</option>'+m.slice(0,30).map(x=>`<option value="${esc(x.nop)}">${esc(x.nop)} — ${esc(x.nama)}${x.alamat?', '+esc(x.alamat):''}${x.blok?' · '+esc(x.blok):''}</option>`).join('')}
 function sv(id){const o={};T[tab].cols.filter(c=>c!='jumlah').forEach(c=>o[c]=$('#f_'+c).value.trim());
@@ -355,7 +447,7 @@ function imp(){const f=$('#file');f.value='';f.onchange=async()=>{const rows=csv
 function impAj(){if(!S.pd.length)return alert('Data Penduduk masih kosong. Impor dulu di tab Data Penduduk.');
  const nik=prompt('Masukkan NIK (16 digit) penduduk yang diajukan PTSL:');if(!nik)return;const p=S.pd.find(x=>x.nik==nik.trim());if(!p)return alert('NIK tidak ditemukan di Data Penduduk.');
  const m=S.dh.filter(x=>String(x.nama).toLowerCase()==p.nama.toLowerCase());let add=0;
- (m.length?m:[{nop:''}]).forEach(d=>{if(S.aj.some(x=>x.nik==p.nik&&x.nop==d.nop))return;S.aj.push({id:uid(),nik:p.nik,nama:p.nama,tempat:p.tempat,tgl:p.tgl,alamat:p.alamat,nop:d.nop,kode:d.nop?d.nop.slice(14,17)+d.nop.slice(18,22):'',namawp:d.nama||'',status:'Diajukan'});add++});
+ (m.length?m:[{nop:''}]).forEach(d=>{if(S.aj.some(x=>x.nik==p.nik&&x.nop==d.nop))return;S.aj.push({id:uid(),nik:p.nik,nama:p.nama,tempat:p.tempat,tgl:p.tgl,alamat:withDesa(p.alamat),nop:d.nop,kode:d.nop?d.nop.slice(14,17)+d.nop.slice(18,22):'',namawp:d.nama||'',status:'Diajukan'});add++});
  save();tab='aj';render();alert(add+' pengajuan ditambahkan'+(m.length?'':' (NOP tidak ditemukan di DHKP, isi manual).'))}
 function exp(){const ac=tab=='aj',cols=T[tab].cols.filter(c=>!(ac&&c=='ket')),cnt={};S.aj.forEach(x=>cnt[x.nik]=(cnt[x.nik]||0)+1);const e=v=>{v=String(v??'');return/^\d{15,}$/.test(v)?'="'+v+'"':'"'+v.replace(/"/g,'""')+'"'};
  const t='\ufeff'+['No',...cols.map(c=>H[c]),...(tab=='aj'?STATUS.map(s=>'Tgl '+s):[]),...(ac?[H.ket]:[])].map(e).join(',')+'\n'+S[tab].map((r,i)=>[i+1,...cols.map(c=>c=='jumlah'?(cnt[r.nik]||''):c=='namawp'?wpOf(r):c=='yuridis'?yu(r[c]):c=='pst'?(r.pst||PST[0]):r[c]),...(tab=='aj'?STATUS.map(s=>{const x=(r.hist||[]).filter(y=>y.k!='p'&&y.s==s).pop();return x?x.t:''}):[]),...(ac?[r.ket]:[])].map(e).join(',')).join('\n');

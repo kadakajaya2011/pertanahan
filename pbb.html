@@ -1,0 +1,114 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>PBB-P2 Desa Kadakajaya</title>
+<style>
+*{box-sizing:border-box}body{margin:0;height:100vh;display:flex;flex-direction:column;font:13px Segoe UI,Arial,sans-serif;color:#17201a;background:#f3f6f4}
+header{background:#14532d;color:#fff;padding:8px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}header h1{font-size:17px;margin:0;flex:1}header a{color:#bbf7d0;text-decoration:none}
+button,select,input,textarea{font:inherit}button{border:0;border-radius:7px;padding:6px 11px;background:#fff;color:#14532d;cursor:pointer;font-weight:600}button.p{background:#16a34a;color:#fff}button.d{background:#dc2626;color:#fff}button:hover{opacity:.88}
+input,select,textarea{border:1px solid #c9d6cd;border-radius:6px;padding:5px 7px;background:#fff}
+.bar{display:flex;gap:8px;padding:8px 14px;flex-wrap:wrap;align-items:center;background:#fff;border-bottom:1px solid #dde6e0}
+.st{display:flex;gap:8px;padding:8px 14px;flex-wrap:wrap}.st div{background:#fff;border:1px solid #dde6e0;border-radius:10px;padding:6px 12px;min-width:120px}.st small{color:#66736a;display:block}.st b{font-size:15px;color:#14532d}
+.tabs{padding:0 14px;display:flex;gap:4px}.tabs button{background:#dfe9e2;border-radius:8px 8px 0 0}.tabs button.on{background:#14532d;color:#fff}
+.wrap{flex:1;overflow:auto;margin:0 14px 10px;background:#fff;border:1px solid #dde6e0}
+table{border-collapse:collapse;width:100%}th,td{padding:5px 8px;border-bottom:1px solid #e6ede8;white-space:nowrap}th{position:sticky;top:0;background:#e8f1ea;cursor:pointer;text-align:left;z-index:1}td.n,th.n{text-align:right}td.c{text-align:center}
+tr:hover td{background:#f7fbf8}tfoot td,.tot td{font-weight:700;background:#eef5f0;position:sticky;bottom:0}.sub td{background:#f1f7f3;font-weight:600}
+.b{padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700}.L{background:#dcfce7;color:#166534}.S{background:#fef9c3;color:#854d0e}.B{background:#fee2e2;color:#991b1b}
+dialog{border:0;border-radius:14px;padding:18px;width:min(560px,94vw);box-shadow:0 10px 40px #0007}dialog::backdrop{background:#0006}dialog h3{margin:0 0 10px;color:#14532d}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:8px}.g label{display:flex;flex-direction:column;font-size:12px;color:#66736a}.g .f{grid-column:1/-1}
+.ph{display:none}.hide{display:none}
+@media print{@page{size:A4 landscape;margin:10mm}body{height:auto;display:block;background:#fff;font-size:10px}header,.bar,.st,.tabs,.no,button{display:none!important}.wrap{overflow:visible;border:0;margin:0}th{position:static;background:#eee;border:1px solid #888}td{border:1px solid #888;padding:2px 4px}tfoot td,.tot td{position:static}.ph{display:block;text-align:center;font-weight:700;margin-bottom:6px;font-size:12px}.np{display:none}}
+</style></head><body>
+<header><h1>🏠 PBB-P2 — Desa Kadakajaya</h1><label>Tahun Pajak <select id="yr"></select></label><button onclick="newYear()">+ Tahun Baru</button><button class="d" onclick="delYear()">Hapus Tahun</button><button onclick="logout()">Keluar</button><a href="index.html">← Menu</a></header>
+<div class="bar"><button class="p" onclick="edit()">+ Tambah SPPT</button><button onclick="D('dImp').showModal()">Tempel dari Excel</button><button onclick="exp()">Ekspor JSON</button><button onclick="jf.click()">Impor JSON</button><input type="file" id="jf" accept=".json" class="hide" onchange="imp(event)">
+<span style="flex:1"></span><input id="q" placeholder="Cari NOP/nama/alamat…" oninput="R()"><select id="fw" onchange="R()"></select><select id="fs" onchange="R()"><option value="">Semua status</option><option>Belum</option><option>Sebagian</option><option>Lunas</option></select><label><input type="checkbox" id="ft" onchange="R()"> Ada tunggakan</label><button class="p" onclick="print()">🖨 Cetak</button></div>
+<div class="st" id="st"></div>
+<div class="tabs"><button id="t1" class="on" onclick="tab(1)">Data SPPT & Pembayaran</button><button id="t2" onclick="tab(2)">Rekap RW / RT</button></div>
+<div class="wrap"><div class="ph" id="ph"></div><div id="v1"><table><thead id="h"></thead><tbody id="b"></tbody><tfoot id="f"></tfoot></table></div><div id="v2" class="hide"><table id="rk"></table></div></div>
+
+<dialog id="dL" oncancel="event.preventDefault()"><h3>Masuk</h3><div class="g"><label class="f">Email<input id="lm" type="email"></label><label class="f">Kata sandi<input id="lp" type="password" onkeydown="if(event.key=='Enter')login()"></label></div><p style="text-align:right;margin:12px 0 0"><button class="p" onclick="login()">Masuk</button></p></dialog>
+<dialog id="dE"><h3 id="eT">SPPT</h3><div class="g">
+<label class="f">NOP<input id="nop" placeholder="32.13.030.025.003.0136-0"></label><label class="f">Nama Wajib Pajak<input id="nama"></label><label class="f">Alamat OP / WP<input id="alamat" placeholder="Dusun …, RT 01 RW 02"></label>
+<label>RT<input id="rt" maxlength="2"></label><label>RW<input id="rw" maxlength="2"></label><label>Luas Bumi (m²)<input id="bumi" type="number"></label><label>Luas Bangunan (m²)<input id="bgn" type="number"></label>
+<label>Pokok Ketetapan (Rp)<input id="pokok" type="number"></label><label>Denda (Rp)<input id="denda" type="number"></label><label>Jumlah Dibayar (Rp)<input id="bayar" type="number"></label><label>Tanggal Bayar<input id="tgl" type="date"></label>
+<label>Petugas Penerima<input id="petugas"></label><label>Keterangan<input id="ket" placeholder="mis. pindah, ganda, tidak ditemukan"></label></div>
+<p style="text-align:right;margin:12px 0 0"><button onclick="dE.close()">Batal</button> <button class="p" onclick="saveRow()">Simpan</button></p></dialog>
+
+<dialog id="dImp"><h3>Tempel data dari Excel</h3><p style="color:#66736a;margin:0 0 8px">Urutan kolom: <b>NOP, Nama WP, Alamat, Luas Bumi, Luas Bangunan, Pokok Ketetapan</b>. NOP yang sudah ada pada tahun ini akan diperbarui, yang belum ada akan ditambahkan. RT/RW diambil otomatis dari alamat.</p><textarea id="pt" rows="10" style="width:100%"></textarea>
+<p style="text-align:right;margin:12px 0 0"><button onclick="dImp.close()">Batal</button> <button class="p" onclick="doPaste()">Proses</button></p></dialog>
+
+<dialog id="dY"><h3>Tahun Pajak Baru</h3><div class="g"><label>Tahun<input id="ny" type="number"></label><label>Salin data dari<select id="ncp"></select></label></div>
+<p style="color:#66736a">Data yang disalin: NOP, nama, alamat, RT/RW, luas, dan pokok ketetapan. Pembayaran, denda, dan tanggal dikosongkan. Tunggakan tahun sebelumnya otomatis terbawa pada kolom Tunggakan.</p>
+<p style="text-align:right;margin:12px 0 0"><button onclick="dY.close()">Batal</button> <button class="p" onclick="doYear()">Buat</button></p></dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const K='pbb_p2_kadakajaya',D=i=>document.getElementById(i),E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const SB_URL='ISI_URL_PROYEK_SUPABASE',SB_KEY='ISI_ANON_PUBLISHABLE_KEY',TBL='pbb_sppt';
+const sb=supabase.createClient(SB_URL,SB_KEY);
+let db={cur:localStorage.getItem(K+'_cur')||String(new Date().getFullYear()),years:{}};
+const save=()=>{try{localStorage.setItem(K+'_cur',db.cur)}catch(e){}};
+async function load(){let all=[],f=0;while(1){const{data,error}=await sb.from(TBL).select('*').order('tahun').range(f,f+999);if(error){alert('Gagal memuat data: '+error.message);return}all.push(...data);if(data.length<1000)break;f+=1000}
+const keep=Object.keys(db.years);db.years={};keep.forEach(y=>db.years[y]=[]);all.forEach(r=>{r.tgl=r.tgl||'';(db.years[r.tahun]=db.years[r.tahun]||[]).push(r)});if(!db.years[db.cur])db.years[db.cur]=[]}
+const W=async p=>{const{error}=await p;if(error){alert('Gagal menyimpan: '+error.message);return false}return true};
+const out=(r,y)=>({tahun:+y,nop:r.nop,nama:r.nama,alamat:r.alamat||'',rt:r.rt||'',rw:r.rw||'',bumi:+r.bumi||0,bgn:+r.bgn||0,pokok:+r.pokok||0,denda:+r.denda||0,bayar:+r.bayar||0,tgl:r.tgl||null,petugas:r.petugas||'',ket:r.ket||'',updated_at:new Date().toISOString()});
+const ups=async a=>{for(let i=0;i<a.length;i+=500)if(!await W(sb.from(TBL).upsert(a.slice(i,i+500),{onConflict:'tahun,nop'})))return false;return true};
+async function upd(id,o){if(await W(sb.from(TBL).update({...o,updated_at:new Date().toISOString()}).eq('id',id))){await load();R()}}
+async function boot(){const{data}=await sb.auth.getSession();if(!data.session){D('dL').showModal();return}await load();init();R()}
+async function login(){const{error}=await sb.auth.signInWithPassword({email:D('lm').value.trim(),password:D('lp').value});if(error)return alert('Login gagal: '+error.message);D('dL').close();boot()}
+async function logout(){await sb.auth.signOut();location.reload()}
+const rp=n=>(+n||0).toLocaleString('id-ID'),rows=()=>db.years[db.cur],N=s=>+String(s||'').replace(/\./g,'').replace(',','.')||0;
+let sk='nop',sd=1,curTab=1,eid=null;
+const tot=r=>(+r.pokok||0)+(+r.denda||0),stat=r=>!(+r.bayar>0)?'Belum':(+r.bayar>=tot(r)?'Lunas':'Sebagian');
+const kode=n=>{const p=String(n||'').split('.');return p.length>=6?p[4]+(p[5]||'').slice(0,4):''};
+const rtrw=a=>{const f=r=>{const m=r.exec(a||'');return m?String(+m[1]).padStart(2,'0'):''};return[f(/RT\.?\s*0*(\d+)/i),f(/RW\.?\s*0*(\d+)/i)]};
+function tunggak(){const m={};Object.keys(db.years).filter(y=>y<db.cur).forEach(y=>db.years[y].forEach(r=>{const t=tot(r)-(+r.bayar||0);if(t>0)m[r.nop]=(m[r.nop]||0)+t}));return m}
+function init(){const ys=Object.keys(db.years).sort().reverse();D('yr').innerHTML=ys.map(y=>`<option ${y==db.cur?'selected':''}>${y}</option>`).join('');D('yr').onchange=e=>{db.cur=e.target.value;save();R()}}
+function R(){const T=tunggak(),all=rows(),rws=[...new Set(all.map(r=>r.rw||'-'))].sort(),fw=D('fw'),old=fw.value;
+fw.innerHTML='<option value="">Semua RW</option>'+rws.map(w=>`<option ${w==old?'selected':''} value="${w}">RW ${w}</option>`).join('');
+const q=D('q').value.toLowerCase(),s=D('fs').value,w=fw.value,t=D('ft').checked;
+let L=all.filter(r=>(!q||(r.nop+r.nama+r.alamat).toLowerCase().includes(q))&&(!s||stat(r)==s)&&(!w||(r.rw||'-')==w)&&(!t||T[r.nop]>0));
+const val=r=>({kode:kode(r.nop),tunggak:T[r.nop]||0,status:stat(r),total:tot(r)}[sk]??r[sk]??'');
+L.sort((a,b)=>{let x=val(a),y=val(b);return(typeof x=='number'&&typeof y=='number'?x-y:String(x).localeCompare(String(y),'id',{numeric:true}))*sd});
+const C=[['no','No'],['kode','Kode'],['nop','NOP','np'],['nama','Nama WP'],['alamat','Alamat OP'],['rt','RT'],['rw','RW'],['bumi','Bumi m²','n'],['bgn','Bgn m²','n'],['pokok','Pokok (Rp)','n'],['denda','Denda','n'],['bayar','Dibayar','n'],['tgl','Tgl Bayar'],['status','Status'],['tunggak','Tunggakan','n'],['ket','Ket.','np'],['aksi','Aksi','no']];
+D('h').innerHTML='<tr>'+C.map(c=>`<th class="${c[2]||''}" onclick="${c[0]=='no'||c[0]=='aksi'?'':`srt('${c[0]}')`}">${c[1]}${sk==c[0]?(sd>0?' ▲':' ▼'):''}</th>`).join('')+'</tr>';
+D('b').innerHTML=L.map((r,i)=>{const st=stat(r);return`<tr><td class="c">${i+1}</td><td class="c">${kode(r.nop)}</td><td class="np">${E(r.nop)}</td><td>${E(r.nama)}</td><td>${E(r.alamat)}</td><td class="c">${E(r.rt)}</td><td class="c">${E(r.rw)}</td><td class="n">${rp(r.bumi)}</td><td class="n">${rp(r.bgn)}</td><td class="n">${rp(r.pokok)}</td><td class="n">${rp(r.denda)}</td><td class="n">${rp(r.bayar)}</td><td>${r.tgl?r.tgl.split('-').reverse().join('/'):''}</td><td class="c"><span class="b ${st[0]}">${st}</span></td><td class="n">${T[r.nop]?rp(T[r.nop]):''}</td><td class="np">${E(r.ket)}</td><td class="no">${st=='Lunas'?`<button onclick="batal('${r.id}')">Batal</button>`:`<button class="p" onclick="lunas('${r.id}')">Lunas</button>`} <button onclick="edit('${r.id}')">Ubah</button> <button class="d" onclick="del('${r.id}')">✕</button></td></tr>`}).join('')||'<tr><td colspan="17" style="padding:20px;text-align:center;color:#66736a">Belum ada data. Klik “Tempel dari Excel” atau “+ Tambah SPPT”.</td></tr>';
+const sum=(a,f)=>a.reduce((x,r)=>x+f(r),0);
+D('f').innerHTML=`<tr class="tot"><td colspan="5">JUMLAH (${L.length} SPPT)</td><td></td><td></td><td class="n">${rp(sum(L,r=>+r.bumi))}</td><td class="n">${rp(sum(L,r=>+r.bgn))}</td><td class="n">${rp(sum(L,r=>+r.pokok))}</td><td class="n">${rp(sum(L,r=>+r.denda))}</td><td class="n">${rp(sum(L,r=>+r.bayar))}</td><td></td><td></td><td class="n">${rp(sum(L,r=>T[r.nop]||0))}</td><td class="np"></td><td class="no"></td></tr>`;
+const k=sum(all,tot),z=sum(all,r=>+r.bayar||0),lu=all.filter(r=>stat(r)=='Lunas').length;
+D('st').innerHTML=[['SPPT',rp(all.length)],['Lunas',lu+' ('+(all.length?Math.round(lu/all.length*100):0)+'%)'],['Ketetapan','Rp '+rp(k)],['Realisasi','Rp '+rp(z)],['Sisa','Rp '+rp(Math.max(0,k-z))],['% Realisasi',(k?(z/k*100).toFixed(1):0)+'%'],['Tunggakan tahun lalu','Rp '+rp(sum(all,r=>T[r.nop]||0))]].map(a=>`<div><small>${a[0]}</small><b>${a[1]}</b></div>`).join('');
+D('ph').innerHTML=`${curTab==1?'DAFTAR PBB-P2':'REKAP PBB-P2 PER RW / RT'} DESA KADAKAJAYA KEC. TANJUNGSARI KAB. SUMEDANG<br>TAHUN PAJAK ${db.cur}${curTab==1?`<br>STATUS : ${s||'SEMUA'}${w?' / RW '+w:''}`:''}<br>per TGL. : ${new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})}`;
+rekap(all)}
+function rekap(all){const g={};all.forEach(r=>{const k=(r.rw||'-')+'|'+(r.rt||'-');(g[k]=g[k]||[]).push(r)});const ks=Object.keys(g).sort((a,b)=>a.localeCompare(b,'id',{numeric:true}));
+const ln=(a)=>{const k=a.reduce((x,r)=>x+tot(r),0),z=a.reduce((x,r)=>x+(+r.bayar||0),0),l=a.filter(r=>stat(r)=='Lunas').length;return[a.length,l,k,z,Math.max(0,k-z),k?(z/k*100).toFixed(1)+'%':'0%']};
+const c=a=>ln(a).map((v,i)=>`<td class="n">${i>=2&&i<5?rp(v):v}</td>`).join('');let h='<thead><tr><th>RW</th><th>RT</th><th class="n">SPPT</th><th class="n">Lunas</th><th class="n">Ketetapan</th><th class="n">Realisasi</th><th class="n">Sisa</th><th class="n">%</th></tr></thead><tbody>',pw=null;
+const ws=[...new Set(ks.map(k=>k.split('|')[0]))];
+ws.forEach(w=>{const sub=[];ks.filter(k=>k.split('|')[0]==w).forEach(k=>{sub.push(...g[k]);h+=`<tr><td>${w}</td><td>${k.split('|')[1]}</td>${c(g[k])}</tr>`});h+=`<tr class="sub"><td colspan="2">JUMLAH RW ${w}</td>${c(sub)}</tr>`});
+h+=`</tbody><tfoot><tr class="tot"><td colspan="2">GRAND TOTAL</td>${c(all)}</tr></tfoot>`;D('rk').innerHTML=h}
+function srt(k){sd=sk==k?-sd:1;sk=k;R()}
+function tab(n){curTab=n;D('v1').classList.toggle('hide',n!=1);D('v2').classList.toggle('hide',n!=2);D('t1').className=n==1?'on':'';D('t2').className=n==2?'on':'';R()}
+const find=id=>rows().find(r=>r.id==id);
+function lunas(id){const r=find(id);upd(id,{bayar:tot(r),tgl:new Date().toISOString().slice(0,10)})}
+function batal(id){upd(id,{bayar:0,tgl:null})}
+async function del(id){if(confirm('Hapus SPPT ini?')&&await W(sb.from(TBL).delete().eq('id',id))){await load();R()}}
+const F=['nop','nama','alamat','rt','rw','bumi','bgn','pokok','denda','bayar','tgl','petugas','ket'];
+function edit(id){eid=id||null;const r=id?find(id):{};D('eT').textContent=(id?'Ubah':'Tambah')+' SPPT '+db.cur;F.forEach(f=>D(f).value=r[f]??'');D('dE').showModal()}
+async function saveRow(){const r={};F.forEach(f=>r[f]=D(f).value.trim());if(!r.nop||!r.nama)return alert('NOP dan Nama WP wajib diisi');
+if(rows().some(x=>x.nop==r.nop&&x.id!=eid))return alert('NOP sudah ada pada tahun '+db.cur);
+const a=rtrw(r.alamat);r.rt=r.rt||a[0];r.rw=r.rw||a[1];const o=out(r,db.cur);
+if(!await W(eid?sb.from(TBL).update(o).eq('id',eid):sb.from(TBL).insert(o)))return;await load();D('dE').close();init();R()}
+async function doPaste(){let a=0,u=0;const arr=[];D('pt').value.split(/\r?\n/).forEach(l=>{if(!l.trim())return;const c=l.split(l.includes('\t')?'\t':';').map(s=>s.trim());if(c.length<2||!/\d/.test(c[0]))return;
+const al=c[2]||'',[rt,rw]=rtrw(al),o={nop:c[0],nama:c[1],alamat:al,rt,rw,bumi:N(c[3]),bgn:N(c[4]),pokok:N(c[5])},x=rows().find(r=>r.nop==o.nop);
+if(x){arr.push(out({...x,...o},db.cur));u++}else{arr.push(out(o,db.cur));a++}});
+if(!arr.length)return alert('Tidak ada baris yang terbaca');if(!await ups(arr))return;await load();D('dImp').close();D('pt').value='';init();R();alert(`Selesai: ${a} ditambahkan, ${u} diperbarui.`)}
+function newYear(){const ys=Object.keys(db.years).sort();D('ny').value=+(ys[ys.length-1]||db.cur)+1;D('ncp').innerHTML='<option value="">(kosong)</option>'+ys.reverse().map(y=>`<option>${y}</option>`).join('');D('ncp').selectedIndex=ys.length?1:0;D('dY').showModal()}
+async function doYear(){const y=D('ny').value,s=D('ncp').value;if(!y)return;
+if(db.years[y]&&db.years[y].length){if(!confirm('Tahun '+y+' sudah berisi data. Data akan DIHAPUS dan ditimpa. Lanjutkan?'))return;if(!await W(sb.from(TBL).delete().eq('tahun',+y)))return}
+if(s&&!await ups(db.years[s].map(r=>out({...r,denda:0,bayar:0,tgl:'',petugas:''},y))))return;
+db.years[y]=[];db.cur=y;save();await load();D('dY').close();init();R()}
+async function delYear(){if(Object.keys(db.years).length<2)return alert('Tidak bisa menghapus satu-satunya tahun.');if(!confirm('Hapus seluruh data PBB-P2 tahun '+db.cur+'?'))return;
+if(!await W(sb.from(TBL).delete().eq('tahun',+db.cur)))return;delete db.years[db.cur];db.cur=Object.keys(db.years).sort().pop();save();await load();init();R()}
+function exp(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db)],{type:'application/json'}));a.download='PBB-P2_Kadakajaya_'+new Date().toISOString().slice(0,10)+'.json';a.click()}
+function imp(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{try{const d=JSON.parse(r.result);if(!d.years)throw 0;
+if(!confirm('Data dari file akan digabung ke database. SPPT dengan tahun + NOP yang sama akan ditimpa. Lanjutkan?'))return;
+const arr=[];Object.keys(d.years).forEach(y=>d.years[y].forEach(x=>{if(x.nop&&x.nama)arr.push(out(x,y))}));
+if(await ups(arr)){await load();init();R();alert(arr.length+' baris diproses.')}}catch(x){alert('File JSON tidak valid')}};r.readAsText(f);e.target.value=''}
+boot();
+</script></body></html>

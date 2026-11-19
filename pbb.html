@@ -41,7 +41,7 @@ dialog{border:0;border-radius:14px;padding:18px;width:min(560px,94vw);box-shadow
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
 const K='pbb_p2_kadakajaya',D=i=>document.getElementById(i),E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const SB_URL='ISI_URL_PROYEK_SUPABASE',SB_KEY='ISI_ANON_PUBLISHABLE_KEY',TBL='pbb_sppt';
+const SB_URL='https://kzkiioevwpbfyultpqmm.supabase.co',SB_KEY='sb_publishable_FJ5CWCs6Fo21b4kFCKDCyg_NiOpr0gr',TBL='pbb_sppt';
 const sb=supabase.createClient(SB_URL,SB_KEY);
 let db={cur:localStorage.getItem(K+'_cur')||String(new Date().getFullYear()),years:{}};
 const save=()=>{try{localStorage.setItem(K+'_cur',db.cur)}catch(e){}};

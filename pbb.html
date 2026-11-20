@@ -6,7 +6,7 @@ button,select,input,textarea{font:inherit}button{border:0;border-radius:7px;padd
 input,select,textarea{border:1px solid #c9d6cd;border-radius:6px;padding:5px 7px;background:#fff}
 .bar{display:flex;gap:8px;padding:8px 14px;flex-wrap:wrap;align-items:center;background:#fff;border-bottom:1px solid #dde6e0}
 .st{display:flex;gap:8px;padding:8px 14px;flex-wrap:wrap}.st div{background:#fff;border:1px solid #dde6e0;border-radius:10px;padding:6px 12px;min-width:110px}.st small{color:#66736a;display:block}.st b{font-size:15px;color:#14532d}
-.warn{background:#fef9c3;color:#854d0e;padding:6px 14px;font-size:12px}
+.ro .w{display:none!important}.warn{background:#fef9c3;color:#854d0e;padding:6px 14px;font-size:12px}
 .tabs{padding:0 14px;display:flex;gap:4px}.tabs button{background:#dfe9e2;border-radius:8px 8px 0 0}.tabs button.on{background:#14532d;color:#fff}
 .wrap{flex:1;overflow:auto;margin:0 14px 10px;background:#fff;border:1px solid #dde6e0}
 table{border-collapse:collapse;width:100%}th,td{padding:5px 8px;border-bottom:1px solid #e6ede8;white-space:nowrap}th{position:sticky;top:0;background:#e8f1ea;cursor:pointer;text-align:left;z-index:1}td.n,th.n{text-align:right}td.c{text-align:center}
@@ -17,17 +17,14 @@ dialog{border:0;border-radius:14px;padding:18px;width:min(580px,94vw);box-shadow
 .ph{display:none}.hide{display:none}
 @media print{@page{size:A4 landscape;margin:10mm}body{height:auto;display:block;background:#fff;font-size:10px}header,.bar,.st,.tabs,.no,.warn,button{display:none!important}.wrap{overflow:visible;border:0;margin:0}th{position:static;background:#eee;border:1px solid #888}td{border:1px solid #888;padding:2px 4px}tfoot td,.tot td{position:static}.ph{display:block;text-align:center;font-weight:700;margin-bottom:6px;font-size:12px}.np{display:none}}
 </style></head><body>
-<header><h1>🏠 PBB-P2 — Desa Kadakajaya</h1><label>Tahun Pajak <select id="yr"></select></label><button onclick="newYear()">+ Tahun Baru</button><button class="d" onclick="delYear()">Hapus Tahun</button><button onclick="logout()">Keluar</button><a href="index.html">← Menu</a></header>
-<div class="bar"><button class="p" onclick="edit()">+ Tambah SPPT</button><button onclick="D('dImp').showModal()">Tempel dari Excel</button><button onclick="exp()">Ekspor JSON</button><button onclick="jf.click()">Impor JSON</button><input type="file" id="jf" accept=".json" class="hide" onchange="imp(event)">
+<header><h1>🏠 PBB-P2 — Desa Kadakajaya</h1><label>Tahun Pajak <select id="yr"></select></label><button class="w" onclick="newYear()">+ Tahun Baru</button><button class="d w" onclick="delYear()">Hapus Tahun</button><a href="index.html">← Menu</a></header>
+<div class="bar"><button class="p w" onclick="edit()">+ Tambah SPPT</button><button class="w" onclick="D('dImp').showModal()">Tempel dari Excel</button><button onclick="exp()">Ekspor JSON</button><button class="w" onclick="jf.click()">Impor JSON</button><input type="file" id="jf" accept=".json" class="hide" onchange="imp(event)">
 <span style="flex:1"></span><input id="q" placeholder="Cari NOP/nama/pemilik…" oninput="R()"><select id="fk" onchange="R()"></select><select id="fa" onchange="R()"></select><select id="fs" onchange="R()"><option value="">Semua status</option><option>Belum</option><option>Sebagian</option><option>Lunas</option></select><label><input type="checkbox" id="ft" onchange="R()"> Ada tunggakan</label><button class="p" onclick="print()">🖨 Cetak</button></div>
-<div class="warn no hide" id="warn"></div>
 <div class="st" id="st"></div>
 <div class="tabs"><button id="t1" class="on" onclick="tab(1)">Data SPPT & Pembayaran</button><button id="t2" onclick="tab(2)">Rekap</button></div>
 <div class="wrap"><div class="ph" id="ph"></div><div id="v1"><table><thead id="h"></thead><tbody id="b"></tbody><tfoot id="f"></tfoot></table></div>
 <div id="v2" class="hide"><div class="no" style="padding:8px">Kelompokkan per: <select id="gb" onchange="R()"><option value="kolektor">Kolektor</option><option value="alamat_wp">Alamat WP</option><option value="blok">Blok</option></select></div><table id="rk"></table></div></div>
 <datalist id="dlk"></datalist><datalist id="dla"></datalist>
-
-<dialog id="dL" oncancel="event.preventDefault()"><h3>Masuk</h3><div class="g"><label class="f">Email<input id="lm" type="email"></label><label class="f">Kata sandi<input id="lp" type="password" onkeydown="if(event.key=='Enter')login()"></label></div><p style="text-align:right;margin:12px 0 0"><button class="p" onclick="login()">Masuk</button></p></dialog>
 
 <dialog id="dE"><h3 id="eT">SPPT</h3><div class="g">
 <label class="f">NOP<input id="nop" placeholder="32.13.030.025.001.0002-0"></label><label class="f">Nama WP (sesuai SPPT/DHKP)<input id="nama_wp"></label>
@@ -45,39 +42,27 @@ dialog{border:0;border-radius:14px;padding:18px;width:min(580px,94vw);box-shadow
 <p style="color:#66736a">Data yang disalin: NOP, nama, luas, alamat, pokok, pemilik, no HP, keterangan, kolektor. Pembayaran dikosongkan. Yang belum lunas di tahun lalu otomatis muncul di kolom Tunggakan.</p>
 <p style="text-align:right;margin:12px 0 0"><button onclick="dY.close()">Batal</button> <button class="p" onclick="doYear()">Buat</button></p></dialog>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="sb-core.js"></script>
 <script>
 const K='pbb_p2_kadakajaya',D=i=>document.getElementById(i),E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-/* ===== KONFIGURASI ===== */
-const SB_URL='https://kzkiioevwpbfyultpqmm.supabase.co',SB_KEY='sb_publishable_FJ5CWCs6Fo21b4kFCKDCyg_NiOpr0gr',TBL='pbb_sppt';
-/* Tabel PTSL yang dipakai untuk menautkan Pemilik. Sesuaikan nama tabel & kolom dengan aplikasi PTSL. */
-const PTSL={tbl:'ptsl_pengajuan',nop:'nop',kode:'kode',nama:'nama_lengkap'};
-/* ======================= */
-const sb=supabase.createClient(SB_URL,SB_KEY);
-let db={cur:localStorage.getItem(K+'_cur')||String(new Date().getFullYear()),years:{}},pm={};
-const save=()=>{try{localStorage.setItem(K+'_cur',db.cur)}catch(e){}};
+const S={sp:[],aj:[]};let db={cur:localStorage.getItem(K+'_cur')||String(new Date().getFullYear())},pm={},xy=[];
+try{xy=JSON.parse(localStorage.getItem(K+'_xy')||'[]')}catch(e){}
+const save=()=>{try{localStorage.setItem(K+'_cur',db.cur);localStorage.setItem(K+'_xy',JSON.stringify(xy))}catch(e){}};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const nk=s=>{const d=String(s||'').replace(/\D/g,'');return d.length>=17?d.slice(10,17):d};
-const rp=n=>(+n||0).toLocaleString('id-ID'),rows=()=>db.years[db.cur],N=s=>+String(s||'').replace(/\./g,'').replace(',','.')||0;
+const rp=n=>(+n||0).toLocaleString('id-ID'),rows=()=>S.sp.filter(r=>+r.tahun==+db.cur),N=s=>+String(s||'').replace(/\./g,'').replace(',','.')||0;
 const tot=r=>+r.pokok||0,stat=r=>!(+r.bayar>0)?'Belum':(+r.bayar>=tot(r)?'Lunas':'Sebagian');
 const blok=n=>{const p=String(n||'').split('.');return p.length>=6?p[4]:'-'},kode=n=>{const k=nk(n);return k.length==7?k:''};
 const pem=r=>pm[nk(r.nop)]||r.pemilik||'';
-async function load(){let all=[],f=0;while(1){const{data,error}=await sb.from(TBL).select('*').order('tahun').range(f,f+999);if(error){alert('Gagal memuat data: '+error.message);return}all.push(...data);if(data.length<1000)break;f+=1000}
-const keep=Object.keys(db.years);db.years={};keep.forEach(y=>db.years[y]=[]);all.forEach(r=>{r.tgl=r.tgl||'';(db.years[r.tahun]=db.years[r.tahun]||[]).push(r)});if(!db.years[db.cur])db.years[db.cur]=[];await loadPtsl()}
-async function loadPtsl(){pm={};const w=D('warn');w.classList.add('hide');const tmp={};let f=0;
-try{while(1){const{data,error}=await sb.from(PTSL.tbl).select('*').range(f,f+999);if(error)throw error;
-data.forEach(r=>{const nm=String(r[PTSL.nama]||'').trim();if(!nm)return;const k=nk(r[PTSL.nop])||nk(r[PTSL.kode]);if(!k)return;(tmp[k]=tmp[k]||new Set()).add(nm)});if(data.length<1000)break;f+=1000}
-Object.keys(tmp).forEach(k=>pm[k]=[...tmp[k]].join('/'))}
-catch(e){w.textContent='Data PTSL tidak terbaca (tabel “'+PTSL.tbl+'”: '+(e.message||e)+'). Kolom Pemilik memakai isian manual. Periksa konfigurasi PTSL di pbb.html.';w.classList.remove('hide')}}
-const W=async p=>{const{error}=await p;if(error){alert('Gagal menyimpan: '+error.message);return false}return true};
-const out=(r,y)=>({tahun:+y,nop:r.nop,nama_wp:r.nama_wp,luas:+r.luas||0,alamat_op:r.alamat_op||'',pokok:+r.pokok||0,alamat_wp:r.alamat_wp||'',pemilik:r.pemilik||'',no_hp:r.no_hp||'',keterangan:r.keterangan||'',kolektor:r.kolektor||'',bayar:+r.bayar||0,tgl:r.tgl||null,updated_at:new Date().toISOString()});
-const ups=async a=>{for(let i=0;i<a.length;i+=500)if(!await W(sb.from(TBL).upsert(a.slice(i,i+500),{onConflict:'tahun,nop'})))return false;return true};
-async function upd(id,o){if(await W(sb.from(TBL).update({...o,updated_at:new Date().toISOString()}).eq('id',id))){await load();R()}}
-async function boot(){const{data}=await sb.auth.getSession();if(!data.session){D('dL').showModal();return}await load();init();R()}
-async function login(){const{error}=await sb.auth.signInWithPassword({email:D('lm').value.trim(),password:D('lp').value});if(error)return alert('Login gagal: '+error.message);D('dL').close();boot()}
-async function logout(){await sb.auth.signOut();location.reload()}
+function buildPm(){pm={};const t={};S.aj.forEach(r=>{const n=String(r.nama||'').trim(),k=nk(r.nop);if(n&&k)(t[k]=t[k]||new Set()).add(n)});Object.keys(t).forEach(k=>pm[k]=[...t[k]].join('/'))}
+const years=()=>[...new Set([...S.sp.map(r=>+r.tahun),...xy.map(Number),+db.cur])].sort((a,b)=>b-a);
+const commit=()=>{SB.push();R()};
+const mk=(r,y)=>({tahun:+y,nop:r.nop,nama_wp:r.nama_wp,luas:+r.luas||0,alamat_op:r.alamat_op||'',pokok:+r.pokok||0,alamat_wp:r.alamat_wp||'',pemilik:r.pemilik||'',no_hp:r.no_hp||'',keterangan:r.keterangan||'',kolektor:r.kolektor||'',bayar:+r.bayar||0,tgl:r.tgl||''});
 let sk='nop',sd=1,curTab=1,eid=null;
-function tunggak(){const m={};Object.keys(db.years).filter(y=>y<db.cur).forEach(y=>db.years[y].forEach(r=>{const t=tot(r)-(+r.bayar||0);if(t>0)m[r.nop]=(m[r.nop]||0)+t}));return m}
-function init(){const ys=Object.keys(db.years).sort().reverse();D('yr').innerHTML=ys.map(y=>`<option ${y==db.cur?'selected':''}>${y}</option>`).join('');D('yr').onchange=e=>{db.cur=e.target.value;save();R()}}
+function tunggak(){const m={};S.sp.filter(r=>+r.tahun<+db.cur).forEach(r=>{const t=tot(r)-(+r.bayar||0);if(t>0)m[r.nop]=(m[r.nop]||0)+t});return m}
+function init(){D('yr').innerHTML=years().map(y=>`<option ${y==+db.cur?'selected':''}>${y}</option>`).join('');D('yr').onchange=e=>{db.cur=e.target.value;save();R()}}
 const uniq=(a,k)=>[...new Set(a.map(r=>r[k]||'-'))].sort((x,y)=>x.localeCompare(y,'id'));
 function R(){const T=tunggak(),all=rows(),fk=D('fk'),fa=D('fa');
 const opt=(el,key,lab)=>{const old=el.value;el.innerHTML=`<option value="">${lab}</option>`+uniq(all,key).map(x=>`<option ${x==old?'selected':''} value="${E(x)}">${E(x)}</option>`).join('')};
@@ -89,14 +74,14 @@ const val=r=>({kode:kode(r.nop),tunggak:T[r.nop]||0,status:stat(r),pemilik:pem(r
 L.sort((x,y)=>{let u=val(x),v=val(y);return(typeof u=='number'&&typeof v=='number'?u-v:String(u).localeCompare(String(v),'id',{numeric:true}))*sd});
 const C=[['no','No'],['kode','Kode'],['nop','NOP','np'],['nama_wp','Nama WP'],['luas','Luas','n'],['alamat_op','Alamat OP'],['pokok','Pokok PBB','n'],['alamat_wp','Alamat WP'],['pemilik','Pemilik'],['no_hp','No HP','np'],['keterangan','Keterangan'],['kolektor','Kolektor'],['bayar','Dibayar','n'],['tgl','Tgl Bayar'],['status','Status'],['tunggak','Tunggakan','n'],['aksi','Aksi','no']];
 D('h').innerHTML='<tr>'+C.map(c=>`<th class="${c[2]||''}" onclick="${c[0]=='no'||c[0]=='aksi'?'':`srt('${c[0]}')`}">${c[1]}${sk==c[0]?(sd>0?' ▲':' ▼'):''}</th>`).join('')+'</tr>';
-D('b').innerHTML=L.map((r,i)=>{const st=stat(r),lk=pm[nk(r.nop)];return`<tr><td class="c">${i+1}</td><td class="c">${kode(r.nop)}</td><td class="np">${E(r.nop)}</td><td>${E(r.nama_wp)}</td><td class="n">${rp(r.luas)}</td><td>${E(r.alamat_op)}</td><td class="n">${rp(r.pokok)}</td><td>${E(r.alamat_wp)}</td><td class="${lk?'lk':''}" ${lk?'title="Dari data PTSL"':''}>${E(pem(r))}</td><td class="np">${E(r.no_hp)}</td><td>${E(r.keterangan)}</td><td>${E(r.kolektor)}</td><td class="n">${rp(r.bayar)}</td><td>${r.tgl?r.tgl.split('-').reverse().join('/'):''}</td><td class="c"><span class="b ${st[0]}">${st}</span></td><td class="n">${T[r.nop]?rp(T[r.nop]):''}</td><td class="no">${st=='Lunas'?`<button onclick="batal('${r.id}')">Batal</button>`:`<button class="p" onclick="lunas('${r.id}')">Lunas</button>`} <button onclick="edit('${r.id}')">Ubah</button> <button class="d" onclick="del('${r.id}')">✕</button></td></tr>`}).join('')||'<tr><td colspan="17" style="padding:20px;text-align:center;color:#66736a">Belum ada data. Klik “Tempel dari Excel” atau “+ Tambah SPPT”.</td></tr>';
+D('b').innerHTML=L.map((r,i)=>{const st=stat(r),lk=pm[nk(r.nop)];return`<tr><td class="c">${i+1}</td><td class="c">${kode(r.nop)}</td><td class="np">${E(r.nop)}</td><td>${E(r.nama_wp)}</td><td class="n">${rp(r.luas)}</td><td>${E(r.alamat_op)}</td><td class="n">${rp(r.pokok)}</td><td>${E(r.alamat_wp)}</td><td class="${lk?'lk':''}" ${lk?'title="Dari data PTSL"':''}>${E(pem(r))}</td><td class="np">${E(r.no_hp)}</td><td>${E(r.keterangan)}</td><td>${E(r.kolektor)}</td><td class="n">${rp(r.bayar)}</td><td>${r.tgl?r.tgl.split('-').reverse().join('/'):''}</td><td class="c"><span class="b ${st[0]}">${st}</span></td><td class="n">${T[r.nop]?rp(T[r.nop]):''}</td><td class="no">${st=='Lunas'?`<button class="w" onclick="batal('${r.id}')">Batal</button>`:`<button class="p w" onclick="lunas('${r.id}')">Lunas</button>`} <button class="w" onclick="edit('${r.id}')">Ubah</button> <button class="d w" onclick="del('${r.id}')">✕</button></td></tr>`}).join('')||'<tr><td colspan="17" style="padding:20px;text-align:center;color:#66736a">Belum ada data. Klik “Tempel dari Excel” atau “+ Tambah SPPT”.</td></tr>';
 const sum=(x,f)=>x.reduce((p,r)=>p+f(r),0);
 D('f').innerHTML=`<tr class="tot"><td colspan="4">JUMLAH (${L.length} SPPT)</td><td class="n">${rp(sum(L,r=>+r.luas))}</td><td></td><td class="n">${rp(sum(L,r=>+r.pokok))}</td><td colspan="5"></td><td class="n">${rp(sum(L,r=>+r.bayar))}</td><td colspan="2"></td><td class="n">${rp(sum(L,r=>T[r.nop]||0))}</td><td class="no"></td></tr>`;
 const kt=sum(all,tot),z=sum(all,r=>+r.bayar||0),lu=all.filter(r=>stat(r)=='Lunas').length;
 D('st').innerHTML=[['SPPT',rp(all.length)],['Lunas',lu+' ('+(all.length?Math.round(lu/all.length*100):0)+'%)'],['Ketetapan','Rp '+rp(kt)],['Realisasi','Rp '+rp(z)],['Sisa','Rp '+rp(Math.max(0,kt-z))],['% Realisasi',(kt?(z/kt*100).toFixed(1):0)+'%'],['Tunggakan tahun lalu','Rp '+rp(sum(all,r=>T[r.nop]||0))],['Pemilik dari PTSL',all.filter(r=>pm[nk(r.nop)]).length]].map(x=>`<div><small>${x[0]}</small><b>${x[1]}</b></div>`).join('');
 const gl={kolektor:'KOLEKTOR',alamat_wp:'ALAMAT WP',blok:'BLOK'}[D('gb').value];
 D('ph').innerHTML=`${curTab==1?'DAFTAR PBB-P2':'REKAP PBB-P2 PER '+gl} DESA KADAKAJAYA KEC. TANJUNGSARI KAB. SUMEDANG<br>TAHUN PAJAK ${db.cur}${curTab==1?`<br>STATUS : ${s||'SEMUA'}${k?' / KOLEKTOR '+k:''}${a?' / '+a:''}`:''}<br>per TGL. : ${new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})}`;
-rekap(all,gl)}
+document.body.classList.toggle('ro',!SB.canWrite('pbb'));rekap(all,gl)}
 function rekap(all,gl){const gk=D('gb').value,g={};all.forEach(r=>{const x=gk=='blok'?blok(r.nop):(r[gk]||'-');(g[x]=g[x]||[]).push(r)});
 const c=a=>{const kt=a.reduce((x,r)=>x+tot(r),0),z=a.reduce((x,r)=>x+(+r.bayar||0),0),l=a.filter(r=>stat(r)=='Lunas').length,lw=a.reduce((x,r)=>x+(+r.luas||0),0);return[a.length,l,lw,kt,z,Math.max(0,kt-z),kt?(z/kt*100).toFixed(1)+'%':'0%'].map((v,i)=>`<td class="n">${i>=2&&i<6?rp(v):v}</td>`).join('')};
 let h=`<thead><tr><th>${gl}</th><th class="n">SPPT</th><th class="n">Lunas</th><th class="n">Luas</th><th class="n">Ketetapan</th><th class="n">Realisasi</th><th class="n">Sisa</th><th class="n">%</th></tr></thead><tbody>`;
@@ -105,29 +90,32 @@ D('rk').innerHTML=h+`</tbody><tfoot><tr class="tot"><td>GRAND TOTAL</td>${c(all)
 function srt(k){sd=sk==k?-sd:1;sk=k;R()}
 function tab(n){curTab=n;D('v1').classList.toggle('hide',n!=1);D('v2').classList.toggle('hide',n!=2);D('t1').className=n==1?'on':'';D('t2').className=n==2?'on':'';R()}
 const find=id=>rows().find(r=>r.id==id);
-function lunas(id){const r=find(id);upd(id,{bayar:tot(r),tgl:new Date().toISOString().slice(0,10)})}
-function batal(id){upd(id,{bayar:0,tgl:null})}
-async function del(id){if(confirm('Hapus SPPT ini?')&&await W(sb.from(TBL).delete().eq('id',id))){await load();R()}}
+function lunas(id){const r=find(id);r.bayar=tot(r);r.tgl=new Date().toISOString().slice(0,10);commit()}
+function batal(id){const r=find(id);r.bayar=0;r.tgl='';commit()}
+function del(id){if(confirm('Hapus SPPT ini?')){S.sp=S.sp.filter(r=>r.id!=id);commit()}}
 const F=['nop','nama_wp','luas','alamat_op','pokok','alamat_wp','pemilik','no_hp','keterangan','kolektor','bayar','tgl'];
 function edit(id){eid=id||null;const r=id?find(id):{};D('eT').textContent=(id?'Ubah':'Tambah')+' SPPT '+db.cur;F.forEach(f=>D(f).value=r[f]??'');D('dE').showModal()}
-async function saveRow(){const r={};F.forEach(f=>r[f]=D(f).value.trim());if(!r.nop||!r.nama_wp)return alert('NOP dan Nama WP wajib diisi');
+function saveRow(){const r={};F.forEach(f=>r[f]=D(f).value.trim());if(!r.nop||!r.nama_wp)return alert('NOP dan Nama WP wajib diisi');
 if(rows().some(x=>x.nop==r.nop&&x.id!=eid))return alert('NOP sudah ada pada tahun '+db.cur);
-const o=out(r,db.cur);if(!await W(eid?sb.from(TBL).update(o).eq('id',eid):sb.from(TBL).insert(o)))return;await load();D('dE').close();init();R()}
-async function doPaste(){let a=0,u=0;const arr=[];D('pt').value.split(/\r?\n/).forEach(l=>{if(!l.trim())return;const c=l.split(l.includes('\t')?'\t':';').map(s=>s.trim());if(c.length<2||!/\d/.test(c[0]))return;
-const x=rows().find(r=>r.nop==c[0]),pk=N(c[4]),o={nop:c[0],nama_wp:c[1],luas:N(c[2]),alamat_op:c[3]||'',pokok:pk,alamat_wp:c[5]||'',pemilik:c[6]||'',no_hp:c[7]||'',keterangan:c[8]||'',kolektor:c[9]||'',bayar:/^lunas/i.test(c[10]||'')?pk:(x?x.bayar:0),tgl:x?x.tgl:''};
-arr.push(out(o,db.cur));x?u++:a++});
-if(!arr.length)return alert('Tidak ada baris yang terbaca');if(!await ups(arr))return;await load();D('dImp').close();D('pt').value='';init();R();alert(`Selesai: ${a} ditambahkan, ${u} diperbarui.`)}
-function newYear(){const ys=Object.keys(db.years).sort();D('ny').value=+(ys[ys.length-1]||db.cur)+1;D('ncp').innerHTML='<option value="">(kosong)</option>'+ys.reverse().map(y=>`<option>${y}</option>`).join('');D('ncp').selectedIndex=ys.length?1:0;D('dY').showModal()}
-async function doYear(){const y=D('ny').value,s=D('ncp').value;if(!y)return;
-if(db.years[y]&&db.years[y].length){if(!confirm('Tahun '+y+' sudah berisi data. Data akan DIHAPUS dan ditimpa. Lanjutkan?'))return;if(!await W(sb.from(TBL).delete().eq('tahun',+y)))return}
-if(s&&!await ups(db.years[s].map(r=>out({...r,bayar:0,tgl:''},y))))return;
-db.years[y]=[];db.cur=y;save();await load();D('dY').close();init();R()}
-async function delYear(){if(Object.keys(db.years).length<2)return alert('Tidak bisa menghapus satu-satunya tahun.');if(!confirm('Hapus seluruh data PBB-P2 tahun '+db.cur+'?'))return;
-if(!await W(sb.from(TBL).delete().eq('tahun',+db.cur)))return;delete db.years[db.cur];db.cur=Object.keys(db.years).sort().pop();save();await load();init();R()}
-function exp(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(db)],{type:'application/json'}));a.download='PBB-P2_Kadakajaya_'+new Date().toISOString().slice(0,10)+'.json';a.click()}
-function imp(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{try{const d=JSON.parse(r.result);if(!d.years)throw 0;
-if(!confirm('Data dari file akan digabung ke database. SPPT dengan tahun + NOP yang sama akan ditimpa. Lanjutkan?'))return;
-const arr=[];Object.keys(d.years).forEach(y=>d.years[y].forEach(x=>{const o={...x,nama_wp:x.nama_wp||x.nama,luas:x.luas??x.bumi,alamat_op:x.alamat_op||x.alamat,kolektor:x.kolektor||x.petugas,keterangan:x.keterangan||x.ket};if(o.nop&&o.nama_wp)arr.push(out(o,y))}));
-if(await ups(arr)){await load();init();R();alert(arr.length+' baris diproses.')}}catch(x){alert('File JSON tidak valid')}};r.readAsText(f);e.target.value=''}
-boot();
+const o=mk(r,db.cur);if(eid)Object.assign(find(eid),o);else S.sp.push({id:uid(),...o});D('dE').close();init();commit()}
+function doPaste(){let a=0,u=0;D('pt').value.split(/\r?\n/).forEach(l=>{if(!l.trim())return;const c=l.split(l.includes('\t')?'\t':';').map(s=>s.trim());if(c.length<2||!/\d/.test(c[0]))return;
+const x=rows().find(r=>r.nop==c[0]),pk=N(c[4]),o=mk({nop:c[0],nama_wp:c[1],luas:N(c[2]),alamat_op:c[3],pokok:pk,alamat_wp:c[5],pemilik:c[6],no_hp:c[7],keterangan:c[8],kolektor:c[9],bayar:/^lunas/i.test(c[10]||'')?pk:(x?x.bayar:0),tgl:x?x.tgl:''},db.cur);
+if(x){Object.assign(x,o);u++}else{S.sp.push({id:uid(),...o});a++}});
+if(!a&&!u)return alert('Tidak ada baris yang terbaca');D('dImp').close();D('pt').value='';commit();alert(`Selesai: ${a} ditambahkan, ${u} diperbarui.`)}
+function newYear(){const ys=years(),has=ys.filter(y=>S.sp.some(r=>+r.tahun==y));D('ny').value=ys[0]+1;D('ncp').innerHTML='<option value="">(kosong)</option>'+has.map(y=>`<option>${y}</option>`).join('');D('ncp').selectedIndex=has.length?1:0;D('dY').showModal()}
+function doYear(){const y=+D('ny').value,s=D('ncp').value;if(!y)return;
+if(S.sp.some(r=>+r.tahun==y)&&!confirm('Tahun '+y+' sudah berisi data. Data akan DIHAPUS dan ditimpa. Lanjutkan?'))return;
+const src=s?S.sp.filter(r=>+r.tahun==+s).map(r=>({...mk(r,y),id:uid(),bayar:0,tgl:''})):[];
+S.sp=S.sp.filter(r=>+r.tahun!=y).concat(src);if(!xy.includes(y))xy.push(y);db.cur=String(y);save();D('dY').close();init();commit()}
+function delYear(){if(years().length<2)return alert('Tidak bisa menghapus satu-satunya tahun.');if(!confirm('Hapus seluruh data PBB-P2 tahun '+db.cur+'?'))return;
+const old=+db.cur;S.sp=S.sp.filter(r=>+r.tahun!=old);xy=xy.filter(y=>+y!=old);db.cur=String(years().find(y=>y!=old));save();init();commit()}
+function exp(){const ys={};S.sp.forEach(r=>(ys[r.tahun]=ys[r.tahun]||[]).push(r));const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({years:ys})],{type:'application/json'}));a.download='PBB-P2_Kadakajaya_'+new Date().toISOString().slice(0,10)+'.json';a.click()}
+function imp(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.years)throw 0;
+if(!confirm('Data dari file akan digabung. SPPT dengan tahun + NOP yang sama akan ditimpa. Lanjutkan?'))return;let n=0;
+Object.keys(d.years).forEach(y=>d.years[y].forEach(x=>{const o=mk({...x,nama_wp:x.nama_wp||x.nama,luas:x.luas??x.bumi,alamat_op:x.alamat_op||x.alamat,kolektor:x.kolektor||x.petugas,keterangan:x.keterangan||x.ket},y);if(!o.nop||!o.nama_wp)return;const t=S.sp.find(z=>+z.tahun==+y&&z.nop==o.nop);if(t)Object.assign(t,o);else S.sp.push({id:uid(),...o});n++}));
+init();commit();alert(n+' baris diproses.')}catch(x){alert('File JSON tidak valid')}};r.readAsText(f);e.target.value=''}
+SB.start({module:'pbb',title:'PBB-P2 Desa Kadakajaya',
+ collections:[{key:'sp',table:'pbb_sppt',mod:'pbb',rt:1,get:()=>S.sp,set:a=>S.sp=a},{key:'aj',table:'pengajuan',mod:'ptsl',ro:1,get:()=>S.aj,set:a=>S.aj=a}],
+ onData:()=>{buildPm();init();R()},onReady:()=>{buildPm();init();R()}});
+
 </script></body></html>

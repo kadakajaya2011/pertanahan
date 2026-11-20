@@ -5,7 +5,7 @@ let sb,me=null,prof=null,O={},cols=[],snap={},vers={},pushT=0,busy=0,waiters=[],
 const $=s=>document.querySelector(s);
 const E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const J=o=>JSON.stringify(o,(k,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.keys(v).sort().reduce((a,x)=>(a[x]=v[x],a),{}):v);
-const MODS={ptsl:'Pengajuan PTSL',pemberkasan:'Pemberkasan',letterc:'Letter C'};
+const MODS={ptsl:'Pengajuan PTSL',pemberkasan:'Pemberkasan',letterc:'Letter C',pbb:'PBB-P2'};
 const tm=d=>(d?new Date(d):new Date()).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 const css=`#sbgate{position:fixed;inset:0;z-index:99999;background:#0f2a1b;display:flex;align-items:center;justify-content:center;font:14px Segoe UI,Arial,sans-serif}
 .sbbox{background:#fff;color:#17201a;border-radius:14px;padding:26px;width:min(380px,92vw);box-shadow:0 10px 40px #0008}.sbbox h2{margin:0 0 4px;font-size:19px}.sbbox p{margin:0 0 12px;color:#66736a}
@@ -97,7 +97,7 @@ function subscribe(){const ch=sb.channel('sb-'+O.module+'-'+Math.random().toStri
  ch.subscribe(s=>{conn=s==='SUBSCRIBED';const d=$('#sbdot');if(d)d.textContent=conn?'🟢':'🔴'})}
 /* ---------- bar & kelola pengguna ---------- */
 function bar(){ui();const mt=$('#sbmenu');let b=$('#sbbar');
- const L=C.links||{},cur=O.module==='letterc'?'letterc':'ptsl',oth=cur==='ptsl'?['letterc','Letter C',L.letterc]:['ptsl','Pengajuan PTSL',L.ptsl];
+ const L=C.links||{},cur=O.module==='letterc'?'letterc':O.module==='pbb'?'pbb':'ptsl',oth=cur==='ptsl'?['letterc','Letter C',L.letterc]:['ptsl','Pengajuan PTSL',L.ptsl];
  const ro=SB.akses(O.module)==='baca';
  const lnk=oth[2]&&SB.akses(oth[0]==='letterc'?'letterc':'ptsl')!=='tidak'?`<a class="mi" href="${E(oth[2])}">↗ ${oth[1]}</a>`:'';
  const adm=SB.isAdmin()?'<button class="mi" id="sbadm">👥 Kelola Pengguna</button>':'';

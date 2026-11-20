@@ -1,46 +1,71 @@
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>PBB-P2 Desa Kadakajaya</title>
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>PBB-P2 Desa Kadakajaya</title>
 <style>
-*{box-sizing:border-box}body{margin:0;height:100vh;display:flex;flex-direction:column;font:13px Segoe UI,Arial,sans-serif;color:#17201a;background:#f3f6f4}
-header{background:#14532d;color:#fff;padding:8px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}header h1{font-size:17px;margin:0;flex:1}header a{color:#bbf7d0;text-decoration:none}
-button,select,input,textarea{font:inherit}button{border:0;border-radius:7px;padding:6px 11px;background:#fff;color:#14532d;cursor:pointer;font-weight:600}button.p{background:#16a34a;color:#fff}button.d{background:#dc2626;color:#fff}button:hover{opacity:.88}
-input,select,textarea{border:1px solid #c9d6cd;border-radius:6px;padding:5px 7px;background:#fff}
-.bar{display:flex;gap:8px;padding:8px 14px;flex-wrap:wrap;align-items:center;background:#fff;border-bottom:1px solid #dde6e0}
-.st{display:flex;gap:8px;padding:8px 14px;flex-wrap:wrap}.st div{background:#fff;border:1px solid #dde6e0;border-radius:10px;padding:6px 12px;min-width:110px}.st small{color:#66736a;display:block}.st b{font-size:15px;color:#14532d}
-.ro .w{display:none!important}.warn{background:#fef9c3;color:#854d0e;padding:6px 14px;font-size:12px}
-.tabs{padding:0 14px;display:flex;gap:4px}.tabs button{background:#dfe9e2;border-radius:8px 8px 0 0}.tabs button.on{background:#14532d;color:#fff}
-.wrap{flex:1;overflow:auto;margin:0 14px 10px;background:#fff;border:1px solid #dde6e0}
-table{border-collapse:collapse;width:100%}th,td{padding:5px 8px;border-bottom:1px solid #e6ede8;white-space:nowrap}th{position:sticky;top:0;background:#e8f1ea;cursor:pointer;text-align:left;z-index:1}td.n,th.n{text-align:right}td.c{text-align:center}
-tr:hover td{background:#f7fbf8}tfoot td,.tot td{font-weight:700;background:#eef5f0;position:sticky;bottom:0}.lk{color:#1d4ed8;font-weight:600}
-.b{padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700}.L{background:#dcfce7;color:#166534}.S{background:#fef9c3;color:#854d0e}.B{background:#fee2e2;color:#991b1b}
-dialog{border:0;border-radius:14px;padding:18px;width:min(580px,94vw);box-shadow:0 10px 40px #0007}dialog::backdrop{background:#0006}dialog h3{margin:0 0 10px;color:#14532d}
-.g{display:grid;grid-template-columns:1fr 1fr;gap:8px}.g label{display:flex;flex-direction:column;font-size:12px;color:#66736a}.g .f{grid-column:1/-1}
-.ph{display:none}.hide{display:none}
-@media print{@page{size:A4 landscape;margin:10mm}body{height:auto;display:block;background:#fff;font-size:10px}header,.bar,.st,.tabs,.no,.warn,button{display:none!important}.wrap{overflow:visible;border:0;margin:0}th{position:static;background:#eee;border:1px solid #888}td{border:1px solid #888;padding:2px 4px}tfoot td,.tot td{position:static}.ph{display:block;text-align:center;font-weight:700;margin-bottom:6px;font-size:12px}.np{display:none}}
+:root{--bg:#f5f6f8;--c:#fff;--t:#1d2430;--m:#667085;--b:#d9dde5;--p:#0f766e;--d:#b42318;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161c;--c:#1b212b;--t:#e8ebf0;--m:#98a2b3;--b:#333b48;--p:#2dd4bf;--d:#f97066}}
+:root[data-theme="dark"]{--bg:#12161c;--c:#1b212b;--t:#e8ebf0;--m:#98a2b3;--b:#333b48;--p:#2dd4bf;--d:#f97066}
+*{box-sizing:border-box}html,body{height:100%}body{display:flex;flex-direction:column;overflow:hidden;margin:0;background:var(--bg);color:var(--t);font:14px/1.45 system-ui,Segoe UI,Arial,sans-serif}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:8px;flex:none;padding:8px 14px;background:var(--p);color:#fff}header h1{margin:0;font-size:16px}header small{opacity:.85}header label{display:flex;align-items:center;gap:6px;margin:0;color:#fff;font-size:13px}header select{width:auto;padding:4px 6px}
+.w{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;padding:10px 14px}#view{flex:1;min-height:0;display:flex;flex-direction:column}.vw{flex:1;min-height:0;display:flex;flex-direction:column}
+.tabs{flex:none;display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.tabs button{padding:8px 14px;border:1px solid var(--b);background:var(--c);color:var(--t);border-radius:8px;cursor:pointer;font:inherit}
+.tabs button.on{background:var(--p);color:#fff;border-color:var(--p)}
+.bar{flex:none;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center}.bar input[type=search]{flex:1;min-width:180px}
+input,select,textarea{padding:8px;border:1px solid var(--b);border-radius:6px;background:var(--c);color:var(--t);font:inherit;width:100%}input[type=checkbox]{width:auto}
+.btn{padding:8px 12px;border:1px solid var(--b);background:var(--c);color:var(--t);border-radius:6px;cursor:pointer;font:inherit;white-space:nowrap;width:auto}
+.btn.p{background:var(--p);color:#fff;border-color:var(--p)}.btn.d{color:var(--d)}.btn.s{padding:4px 8px;font-size:12px}
+.flt{width:auto}.ck{display:flex;align-items:center;gap:4px;margin:0;color:var(--t);font-size:13px}
+.st{flex:none;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}.st div{background:var(--c);border:1px solid var(--b);border-radius:8px;padding:5px 12px;min-width:110px}.st small{color:var(--m);display:block;font-size:12px}.st b{font-size:15px;color:var(--p)}
+.box{background:var(--c);border:1px solid var(--b);border-radius:8px;overflow:hidden;flex:1;min-height:0;display:flex;flex-direction:column}.tw{flex:1;min-height:0;overflow:auto}
+table{border-collapse:collapse;width:max-content;min-width:100%}th,td{padding:7px 9px;border-bottom:1px solid var(--b);text-align:left;vertical-align:top;white-space:nowrap}
+th{position:sticky;top:0;z-index:2;background:var(--bg);font-size:12px;text-transform:uppercase;color:var(--m);box-shadow:0 1px 0 var(--b);cursor:pointer;user-select:none}th:hover{color:var(--t)}
+td.n,th.n{text-align:right}td.c{text-align:center}tbody tr:hover td{background:var(--bg)}.lk{color:var(--p);font-weight:600}
+tfoot td,.tot td{font-weight:700;border-top:2px solid var(--t);background:var(--c);position:sticky;bottom:0}
+.badge{padding:2px 8px;border-radius:10px;font-size:12px;border:1px solid var(--b)}.badge.L{background:#dcfce7;color:#166534;border-color:#bbf7d0}.badge.S{background:#fef9c3;color:#854d0e;border-color:#fde68a}.badge.B{background:#fee2e2;color:#991b1b;border-color:#fecaca}
+.empty{padding:24px;text-align:center;color:var(--m)}.hint{font-size:12px;color:var(--m);margin:4px 0 0}
+dialog{background:var(--c);color:var(--t);border:1px solid var(--b);border-radius:10px;padding:16px;width:100%;max-width:560px;max-height:92%;overflow:auto}dialog::backdrop{background:#0008}dialog h3{margin:0 0 10px;color:var(--p);font-size:15px}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:10px}.g .f{grid-column:1/-1}label{font-size:12px;color:var(--m);display:block;margin-bottom:3px}
+.ph{display:none}.ro .wr{display:none!important}.hide{display:none!important}
+@media(max-width:520px){.g{grid-template-columns:1fr}}
+@media print{@page{size:A4 landscape;margin:10mm}
+:root{--bg:#fff!important;--c:#fff!important;--t:#000!important;--m:#333!important;--b:#999!important}
+html,body{height:auto!important;overflow:visible!important;background:#fff}body{display:block;font-size:10pt}
+header,.tabs,.bar,.st,.no,.ac,#sbmenu{display:none!important}
+.w,#view,.vw,.box,.tw{display:block!important;overflow:visible!important;height:auto!important;border:0;padding:0;margin:0}.vw.hide{display:none!important}
+.ph{display:block;margin-bottom:8px}.ph h2{margin:0 0 6px;font-size:13pt;text-align:center}.ph div{text-align:center;font-style:italic;margin:2px 0}
+table{min-width:0!important;width:100%!important;font-size:8.5pt}th{position:static;box-shadow:none;background:#eee!important;color:#000;border:1px solid #999;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+td{border:1px solid #bbb;padding:3px 5px;white-space:normal}tfoot td,.tot td{position:static}thead{display:table-header-group}tr{break-inside:avoid;page-break-inside:avoid}.np{display:none}
+.badge{border:0;padding:0;background:none!important;color:#000!important}}
 </style></head><body>
-<header><h1>🏠 PBB-P2 — Desa Kadakajaya</h1><label>Tahun Pajak <select id="yr"></select></label><button class="w" onclick="newYear()">+ Tahun Baru</button><button class="d w" onclick="delYear()">Hapus Tahun</button><a href="index.html">← Menu</a></header>
-<div class="bar"><button class="p w" onclick="edit()">+ Tambah SPPT</button><button class="w" onclick="xin.click()">📥 Impor Excel</button><input type="file" id="xin" accept=".xlsx,.xls,.csv" class="hide" onchange="impX(event)"><button onclick="expX()">📤 Ekspor Excel</button><button class="w" onclick="tplX()">Template</button><button class="w" onclick="D('dImp').showModal()">Tempel dari Excel</button><button onclick="exp()">Ekspor JSON</button><button class="w" onclick="jf.click()">Impor JSON</button><input type="file" id="jf" accept=".json" class="hide" onchange="imp(event)">
-<span style="flex:1"></span><input id="q" placeholder="Cari NOP/nama/pemilik…" oninput="R()"><select id="fk" onchange="R()"></select><select id="fa" onchange="R()"></select><select id="fs" onchange="R()"><option value="">Semua status</option><option>Belum</option><option>Sebagian</option><option>Lunas</option></select><label><input type="checkbox" id="ft" onchange="R()"> Ada tunggakan</label><button class="p" onclick="print()">🖨 Cetak</button></div>
+<header><div><h1>PBB-P2 — Desa Kadakajaya</h1><small>Kec. Tanjungsari, Kab. Sumedang</small></div>
+<label>Tahun Pajak <select id="yr"></select></label><button class="btn s wr" onclick="newYear()">+ Tahun Baru</button><button class="btn s d wr" onclick="delYear()">Hapus Tahun</button>
+<span style="flex:1"></span><button class="btn s" onclick="exp()">Ekspor DB (JSON)</button><button class="btn s wr" onclick="jf.click()">Impor DB (JSON)</button><input type="file" id="jf" accept=".json" hidden onchange="imp(event)"><input type="file" id="xin" accept=".xlsx,.xls,.csv" hidden onchange="impX(event)"><span id="sbmenu"></span></header>
+<div class="w"><div class="ph" id="ph"></div>
+<div class="tabs"><button id="t1" class="on" onclick="tab(1)">Data SPPT &amp; Pembayaran</button><button id="t2" onclick="tab(2)">Rekap</button></div>
 <div class="st" id="st"></div>
-<div class="tabs"><button id="t1" class="on" onclick="tab(1)">Data SPPT & Pembayaran</button><button id="t2" onclick="tab(2)">Rekap</button></div>
-<div class="wrap"><div class="ph" id="ph"></div><div id="v1"><table><thead id="h"></thead><tbody id="b"></tbody><tfoot id="f"></tfoot></table></div>
-<div id="v2" class="hide"><div class="no" style="padding:8px">Kelompokkan per: <select id="gb" onchange="R()"><option value="kolektor">Kolektor</option><option value="alamat_wp">Alamat WP</option><option value="blok">Blok</option></select></div><table id="rk"></table></div></div>
+<div id="view">
+<div class="vw" id="v1"><div class="bar"><input type="search" id="q" placeholder="Cari NOP / nama / pemilik…" oninput="R()"><select class="flt" id="fk" onchange="R()"></select><select class="flt" id="fa" onchange="R()"></select><select class="flt" id="fs" onchange="R()"><option value="">Semua status</option><option>Belum</option><option>Sebagian</option><option>Lunas</option></select><label class="ck"><input type="checkbox" id="ft" onchange="R()"> Ada tunggakan</label>
+<button class="btn p wr" onclick="edit()">+ Tambah SPPT</button><button class="btn wr" onclick="xin.click()">Impor Excel</button><button class="btn" onclick="expX()">Ekspor Excel</button><button class="btn wr" onclick="tplX()">Template</button><button class="btn wr" onclick="D('dImp').showModal()">Tempel dari Excel</button><button class="btn" onclick="print()">Cetak</button></div>
+<div class="box"><div class="tw"><table><thead id="h"></thead><tbody id="b"></tbody><tfoot id="f"></tfoot></table></div></div></div>
+<div class="vw hide" id="v2"><div class="bar"><select class="flt" id="gb" onchange="R()"><option value="kolektor">Per Kolektor</option><option value="alamat_wp">Per Alamat WP</option><option value="blok">Per Blok</option></select><button class="btn" onclick="print()">Cetak</button><span class="hint">Rekap mencakup seluruh SPPT pada tahun pajak yang dipilih.</span></div>
+<div class="box"><div class="tw"><table id="rk"></table></div></div></div>
+</div></div>
 <datalist id="dlk"></datalist><datalist id="dla"></datalist>
 
 <dialog id="dE"><h3 id="eT">SPPT</h3><div class="g">
-<label class="f">NOP<input id="nop" placeholder="32.13.030.025.001.0002-0"></label><label class="f">Nama WP (sesuai SPPT/DHKP)<input id="nama_wp"></label>
-<label>Luas (m²)<input id="luas" type="number"></label><label>Pokok PBB (Rp)<input id="pokok" type="number"></label>
-<label class="f">Alamat Objek Pajak<input id="alamat_op" placeholder="BL PASIR PESO"></label><label class="f">Alamat Wajib Pajak<input id="alamat_wp" list="dla"></label>
-<label class="f">Pemilik (otomatis dari PTSL bila NOP dipakai; isian ini sebagai cadangan)<input id="pemilik"></label>
-<label>No HP<input id="no_hp"></label><label>Kolektor<input id="kolektor" list="dlk"></label><label class="f">Keterangan<input id="keterangan"></label>
-<label>Jumlah Dibayar (Rp)<input id="bayar" type="number"></label><label>Tanggal Bayar<input id="tgl" type="date"></label></div>
-<p style="text-align:right;margin:12px 0 0"><button onclick="dE.close()">Batal</button> <button class="p" onclick="saveRow()">Simpan</button></p></dialog>
+<div class="f"><label>NOP</label><input id="nop" placeholder="32.13.030.025.001.0002-0"></div><div class="f"><label>Nama WP (sesuai SPPT/DHKP)</label><input id="nama_wp"></div>
+<div><label>Luas (m²)</label><input id="luas" type="number"></div><div><label>Pokok PBB (Rp)</label><input id="pokok" type="number"></div>
+<div class="f"><label>Alamat Objek Pajak</label><input id="alamat_op" placeholder="BL PASIR PESO"></div><div class="f"><label>Alamat Wajib Pajak</label><input id="alamat_wp" list="dla"></div>
+<div class="f"><label>Pemilik (otomatis dari PTSL bila NOP dipakai; isian ini sebagai cadangan)</label><input id="pemilik"></div>
+<div><label>No HP</label><input id="no_hp"></div><div><label>Kolektor</label><input id="kolektor" list="dlk"></div><div class="f"><label>Keterangan</label><input id="keterangan"></div>
+<div><label>Jumlah Dibayar (Rp)</label><input id="bayar" type="number"></div><div><label>Tanggal Bayar</label><input id="tgl" type="date"></div></div>
+<p class="ac" style="text-align:right;margin:12px 0 0"><button class="btn" onclick="dE.close()">Batal</button> <button class="btn p" onclick="saveRow()">Simpan</button></p></dialog>
 
-<dialog id="dImp"><h3>Tempel data dari Excel</h3><p style="color:#66736a;margin:0 0 8px">Urutan kolom (sama seperti tabel): <b>NOP, Nama WP, Luas, Alamat Objek Pajak, Pokok PBB, Alamat WP, Pemilik, No HP, Keterangan, Kolektor, Status</b>. Status “Lunas” otomatis mengisi pembayaran sebesar pokok. NOP yang sudah ada pada tahun ini diperbarui.</p><textarea id="pt" rows="10" style="width:100%"></textarea>
-<p style="text-align:right;margin:12px 0 0"><button onclick="dImp.close()">Batal</button> <button class="p" onclick="doPaste()">Proses</button></p></dialog>
+<dialog id="dImp"><h3>Tempel data dari Excel</h3><p class="hint" style="margin:0 0 8px">Urutan kolom (sama seperti tabel): <b>NOP, Nama WP, Luas, Alamat Objek Pajak, Pokok PBB, Alamat WP, Pemilik, No HP, Keterangan, Kolektor, Status</b>. Status “Lunas” otomatis mengisi pembayaran sebesar pokok. NOP yang sudah ada pada tahun ini diperbarui.</p><textarea id="pt" rows="10"></textarea>
+<p class="ac" style="text-align:right;margin:12px 0 0"><button class="btn" onclick="dImp.close()">Batal</button> <button class="btn p" onclick="doPaste()">Proses</button></p></dialog>
 
-<dialog id="dY"><h3>Tahun Pajak Baru</h3><div class="g"><label>Tahun<input id="ny" type="number"></label><label>Salin data dari<select id="ncp"></select></label></div>
-<p style="color:#66736a">Data yang disalin: NOP, nama, luas, alamat, pokok, pemilik, no HP, keterangan, kolektor. Pembayaran dikosongkan. Yang belum lunas di tahun lalu otomatis muncul di kolom Tunggakan.</p>
-<p style="text-align:right;margin:12px 0 0"><button onclick="dY.close()">Batal</button> <button class="p" onclick="doYear()">Buat</button></p></dialog>
+<dialog id="dY"><h3>Tahun Pajak Baru</h3><div class="g"><div><label>Tahun</label><input id="ny" type="number"></div><div><label>Salin data dari</label><select id="ncp"></select></div></div>
+<p class="hint">Data yang disalin: NOP, nama, luas, alamat, pokok, pemilik, no HP, keterangan, kolektor. Pembayaran dikosongkan. Yang belum lunas di tahun lalu otomatis muncul di kolom Tunggakan.</p>
+<p class="ac" style="text-align:right;margin:12px 0 0"><button class="btn" onclick="dY.close()">Batal</button> <button class="btn p" onclick="doYear()">Buat</button></p></dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -75,13 +100,13 @@ const val=r=>({kode:kode(r.nop),tunggak:T[r.nop]||0,status:stat(r),pemilik:pem(r
 L.sort((x,y)=>{let u=val(x),v=val(y);return(typeof u=='number'&&typeof v=='number'?u-v:String(u).localeCompare(String(v),'id',{numeric:true}))*sd});
 LL=L;const C=[['no','No'],['kode','Kode'],['nop','NOP','np'],['nama_wp','Nama WP'],['luas','Luas','n'],['alamat_op','Alamat OP'],['pokok','Pokok PBB','n'],['alamat_wp','Alamat WP'],['pemilik','Pemilik'],['no_hp','No HP','np'],['keterangan','Keterangan'],['kolektor','Kolektor'],['bayar','Dibayar','n'],['tgl','Tgl Bayar'],['status','Status'],['tunggak','Tunggakan','n'],['aksi','Aksi','no']];
 D('h').innerHTML='<tr>'+C.map(c=>`<th class="${c[2]||''}" onclick="${c[0]=='no'||c[0]=='aksi'?'':`srt('${c[0]}')`}">${c[1]}${sk==c[0]?(sd>0?' ▲':' ▼'):''}</th>`).join('')+'</tr>';
-D('b').innerHTML=L.map((r,i)=>{const st=stat(r),lk=pm[nk(r.nop)];return`<tr><td class="c">${i+1}</td><td class="c">${kode(r.nop)}</td><td class="np">${E(r.nop)}</td><td>${E(r.nama_wp)}</td><td class="n">${rp(r.luas)}</td><td>${E(r.alamat_op)}</td><td class="n">${rp(r.pokok)}</td><td>${E(r.alamat_wp)}</td><td class="${lk?'lk':''}" ${lk?'title="Dari data PTSL"':''}>${E(pem(r))}</td><td class="np">${E(r.no_hp)}</td><td>${E(r.keterangan)}</td><td>${E(r.kolektor)}</td><td class="n">${rp(r.bayar)}</td><td>${r.tgl?r.tgl.split('-').reverse().join('/'):''}</td><td class="c"><span class="b ${st[0]}">${st}</span></td><td class="n">${T[r.nop]?rp(T[r.nop]):''}</td><td class="no">${st=='Lunas'?`<button class="w" onclick="batal('${r.id}')">Batal</button>`:`<button class="p w" onclick="lunas('${r.id}')">Lunas</button>`} <button class="w" onclick="edit('${r.id}')">Ubah</button> <button class="d w" onclick="del('${r.id}')">✕</button></td></tr>`}).join('')||'<tr><td colspan="17" style="padding:20px;text-align:center;color:#66736a">Belum ada data. Klik “Tempel dari Excel” atau “+ Tambah SPPT”.</td></tr>';
+D('b').innerHTML=L.map((r,i)=>{const st=stat(r),lk=pm[nk(r.nop)];return`<tr><td class="c">${i+1}</td><td class="c">${kode(r.nop)}</td><td class="np">${E(r.nop)}</td><td>${E(r.nama_wp)}</td><td class="n">${rp(r.luas)}</td><td>${E(r.alamat_op)}</td><td class="n">${rp(r.pokok)}</td><td>${E(r.alamat_wp)}</td><td class="${lk?'lk':''}" ${lk?'title="Dari data PTSL"':''}>${E(pem(r))}</td><td class="np">${E(r.no_hp)}</td><td>${E(r.keterangan)}</td><td>${E(r.kolektor)}</td><td class="n">${rp(r.bayar)}</td><td>${r.tgl?r.tgl.split('-').reverse().join('/'):''}</td><td class="c"><span class="badge ${st[0]}">${st}</span></td><td class="n">${T[r.nop]?rp(T[r.nop]):''}</td><td class="no">${st=='Lunas'?`<button class="btn s wr" onclick="batal('${r.id}')">Batal</button>`:`<button class="btn s p wr" onclick="lunas('${r.id}')">Lunas</button>`} <button class="btn s wr" onclick="edit('${r.id}')">Ubah</button> <button class="btn s d wr" onclick="del('${r.id}')">✕</button></td></tr>`}).join('')||'<tr><td colspan="17" class="empty">Belum ada data. Klik “Tempel dari Excel” atau “+ Tambah SPPT”.</td></tr>';
 const sum=(x,f)=>x.reduce((p,r)=>p+f(r),0);
 D('f').innerHTML=`<tr class="tot"><td colspan="4">JUMLAH (${L.length} SPPT)</td><td class="n">${rp(sum(L,r=>+r.luas))}</td><td></td><td class="n">${rp(sum(L,r=>+r.pokok))}</td><td colspan="5"></td><td class="n">${rp(sum(L,r=>+r.bayar))}</td><td colspan="2"></td><td class="n">${rp(sum(L,r=>T[r.nop]||0))}</td><td class="no"></td></tr>`;
 const kt=sum(all,tot),z=sum(all,r=>+r.bayar||0),lu=all.filter(r=>stat(r)=='Lunas').length;
 D('st').innerHTML=[['SPPT',rp(all.length)],['Lunas',lu+' ('+(all.length?Math.round(lu/all.length*100):0)+'%)'],['Ketetapan','Rp '+rp(kt)],['Realisasi','Rp '+rp(z)],['Sisa','Rp '+rp(Math.max(0,kt-z))],['% Realisasi',(kt?(z/kt*100).toFixed(1):0)+'%'],['Tunggakan tahun lalu','Rp '+rp(sum(all,r=>T[r.nop]||0))],['Pemilik dari PTSL',all.filter(r=>pm[nk(r.nop)]).length]].map(x=>`<div><small>${x[0]}</small><b>${x[1]}</b></div>`).join('');
 const gl={kolektor:'KOLEKTOR',alamat_wp:'ALAMAT WP',blok:'BLOK'}[D('gb').value];
-D('ph').innerHTML=`${curTab==1?'DAFTAR PBB-P2':'REKAP PBB-P2 PER '+gl} DESA KADAKAJAYA KEC. TANJUNGSARI KAB. SUMEDANG<br>TAHUN PAJAK ${db.cur}${curTab==1?`<br>STATUS : ${s||'SEMUA'}${k?' / KOLEKTOR '+k:''}${a?' / '+a:''}`:''}<br>per TGL. : ${new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})}`;
+D('ph').innerHTML=`<h2>${curTab==1?'DAFTAR PBB-P2':'REKAP PBB-P2 PER '+gl} DESA KADAKAJAYA KEC. TANJUNGSARI KAB. SUMEDANG TAHUN PAJAK ${db.cur}</h2><div>${curTab==1?`STATUS : ${(s||'SEMUA').toUpperCase()}${k?' / KOLEKTOR '+E(k):''}${a?' / '+E(a):''} &nbsp;&nbsp; `:''}per TGL. : ${new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})}</div>`;
 document.body.classList.toggle('ro',!SB.canWrite('pbb'));rekap(all,gl)}
 function rekap(all,gl){const gk=D('gb').value,g={};all.forEach(r=>{const x=gk=='blok'?blok(r.nop):(r[gk]||'-');(g[x]=g[x]||[]).push(r)});
 const c=a=>{const kt=a.reduce((x,r)=>x+tot(r),0),z=a.reduce((x,r)=>x+(+r.bayar||0),0),l=a.filter(r=>stat(r)=='Lunas').length,lw=a.reduce((x,r)=>x+(+r.luas||0),0);return[a.length,l,lw,kt,z,Math.max(0,kt-z),kt?(z/kt*100).toFixed(1)+'%':'0%'].map((v,i)=>`<td class="n">${i>=2&&i<6?rp(v):v}</td>`).join('')};

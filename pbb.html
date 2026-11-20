@@ -18,7 +18,7 @@ dialog{border:0;border-radius:14px;padding:18px;width:min(580px,94vw);box-shadow
 @media print{@page{size:A4 landscape;margin:10mm}body{height:auto;display:block;background:#fff;font-size:10px}header,.bar,.st,.tabs,.no,.warn,button{display:none!important}.wrap{overflow:visible;border:0;margin:0}th{position:static;background:#eee;border:1px solid #888}td{border:1px solid #888;padding:2px 4px}tfoot td,.tot td{position:static}.ph{display:block;text-align:center;font-weight:700;margin-bottom:6px;font-size:12px}.np{display:none}}
 </style></head><body>
 <header><h1>🏠 PBB-P2 — Desa Kadakajaya</h1><label>Tahun Pajak <select id="yr"></select></label><button class="w" onclick="newYear()">+ Tahun Baru</button><button class="d w" onclick="delYear()">Hapus Tahun</button><a href="index.html">← Menu</a></header>
-<div class="bar"><button class="p w" onclick="edit()">+ Tambah SPPT</button><button class="w" onclick="D('dImp').showModal()">Tempel dari Excel</button><button onclick="exp()">Ekspor JSON</button><button class="w" onclick="jf.click()">Impor JSON</button><input type="file" id="jf" accept=".json" class="hide" onchange="imp(event)">
+<div class="bar"><button class="p w" onclick="edit()">+ Tambah SPPT</button><button class="w" onclick="xin.click()">📥 Impor Excel</button><input type="file" id="xin" accept=".xlsx,.xls,.csv" class="hide" onchange="impX(event)"><button onclick="expX()">📤 Ekspor Excel</button><button class="w" onclick="tplX()">Template</button><button class="w" onclick="D('dImp').showModal()">Tempel dari Excel</button><button onclick="exp()">Ekspor JSON</button><button class="w" onclick="jf.click()">Impor JSON</button><input type="file" id="jf" accept=".json" class="hide" onchange="imp(event)">
 <span style="flex:1"></span><input id="q" placeholder="Cari NOP/nama/pemilik…" oninput="R()"><select id="fk" onchange="R()"></select><select id="fa" onchange="R()"></select><select id="fs" onchange="R()"><option value="">Semua status</option><option>Belum</option><option>Sebagian</option><option>Lunas</option></select><label><input type="checkbox" id="ft" onchange="R()"> Ada tunggakan</label><button class="p" onclick="print()">🖨 Cetak</button></div>
 <div class="st" id="st"></div>
 <div class="tabs"><button id="t1" class="on" onclick="tab(1)">Data SPPT & Pembayaran</button><button id="t2" onclick="tab(2)">Rekap</button></div>
@@ -43,6 +43,7 @@ dialog{border:0;border-radius:14px;padding:18px;width:min(580px,94vw);box-shadow
 <p style="text-align:right;margin:12px 0 0"><button onclick="dY.close()">Batal</button> <button class="p" onclick="doYear()">Buat</button></p></dialog>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="config.js"></script>
 <script src="sb-core.js"></script>
 <script>
@@ -60,7 +61,7 @@ function buildPm(){pm={};const t={};S.aj.forEach(r=>{const n=String(r.nama||'').
 const years=()=>[...new Set([...S.sp.map(r=>+r.tahun),...xy.map(Number),+db.cur])].sort((a,b)=>b-a);
 const commit=()=>{SB.push();R()};
 const mk=(r,y)=>({tahun:+y,nop:r.nop,nama_wp:r.nama_wp,luas:+r.luas||0,alamat_op:r.alamat_op||'',pokok:+r.pokok||0,alamat_wp:r.alamat_wp||'',pemilik:r.pemilik||'',no_hp:r.no_hp||'',keterangan:r.keterangan||'',kolektor:r.kolektor||'',bayar:+r.bayar||0,tgl:r.tgl||''});
-let sk='nop',sd=1,curTab=1,eid=null;
+let sk='nop',sd=1,curTab=1,eid=null,LL=[];
 function tunggak(){const m={};S.sp.filter(r=>+r.tahun<+db.cur).forEach(r=>{const t=tot(r)-(+r.bayar||0);if(t>0)m[r.nop]=(m[r.nop]||0)+t});return m}
 function init(){D('yr').innerHTML=years().map(y=>`<option ${y==+db.cur?'selected':''}>${y}</option>`).join('');D('yr').onchange=e=>{db.cur=e.target.value;save();R()}}
 const uniq=(a,k)=>[...new Set(a.map(r=>r[k]||'-'))].sort((x,y)=>x.localeCompare(y,'id'));
@@ -72,7 +73,7 @@ const q=D('q').value.toLowerCase(),s=D('fs').value,k=fk.value,a=fa.value,t=D('ft
 let L=all.filter(r=>(!q||(r.nop+r.nama_wp+pem(r)+r.alamat_op).toLowerCase().includes(q))&&(!s||stat(r)==s)&&(!k||(r.kolektor||'-')==k)&&(!a||(r.alamat_wp||'-')==a)&&(!t||T[r.nop]>0));
 const val=r=>({kode:kode(r.nop),tunggak:T[r.nop]||0,status:stat(r),pemilik:pem(r)}[sk]??r[sk]??'');
 L.sort((x,y)=>{let u=val(x),v=val(y);return(typeof u=='number'&&typeof v=='number'?u-v:String(u).localeCompare(String(v),'id',{numeric:true}))*sd});
-const C=[['no','No'],['kode','Kode'],['nop','NOP','np'],['nama_wp','Nama WP'],['luas','Luas','n'],['alamat_op','Alamat OP'],['pokok','Pokok PBB','n'],['alamat_wp','Alamat WP'],['pemilik','Pemilik'],['no_hp','No HP','np'],['keterangan','Keterangan'],['kolektor','Kolektor'],['bayar','Dibayar','n'],['tgl','Tgl Bayar'],['status','Status'],['tunggak','Tunggakan','n'],['aksi','Aksi','no']];
+LL=L;const C=[['no','No'],['kode','Kode'],['nop','NOP','np'],['nama_wp','Nama WP'],['luas','Luas','n'],['alamat_op','Alamat OP'],['pokok','Pokok PBB','n'],['alamat_wp','Alamat WP'],['pemilik','Pemilik'],['no_hp','No HP','np'],['keterangan','Keterangan'],['kolektor','Kolektor'],['bayar','Dibayar','n'],['tgl','Tgl Bayar'],['status','Status'],['tunggak','Tunggakan','n'],['aksi','Aksi','no']];
 D('h').innerHTML='<tr>'+C.map(c=>`<th class="${c[2]||''}" onclick="${c[0]=='no'||c[0]=='aksi'?'':`srt('${c[0]}')`}">${c[1]}${sk==c[0]?(sd>0?' ▲':' ▼'):''}</th>`).join('')+'</tr>';
 D('b').innerHTML=L.map((r,i)=>{const st=stat(r),lk=pm[nk(r.nop)];return`<tr><td class="c">${i+1}</td><td class="c">${kode(r.nop)}</td><td class="np">${E(r.nop)}</td><td>${E(r.nama_wp)}</td><td class="n">${rp(r.luas)}</td><td>${E(r.alamat_op)}</td><td class="n">${rp(r.pokok)}</td><td>${E(r.alamat_wp)}</td><td class="${lk?'lk':''}" ${lk?'title="Dari data PTSL"':''}>${E(pem(r))}</td><td class="np">${E(r.no_hp)}</td><td>${E(r.keterangan)}</td><td>${E(r.kolektor)}</td><td class="n">${rp(r.bayar)}</td><td>${r.tgl?r.tgl.split('-').reverse().join('/'):''}</td><td class="c"><span class="b ${st[0]}">${st}</span></td><td class="n">${T[r.nop]?rp(T[r.nop]):''}</td><td class="no">${st=='Lunas'?`<button class="w" onclick="batal('${r.id}')">Batal</button>`:`<button class="p w" onclick="lunas('${r.id}')">Lunas</button>`} <button class="w" onclick="edit('${r.id}')">Ubah</button> <button class="d w" onclick="del('${r.id}')">✕</button></td></tr>`}).join('')||'<tr><td colspan="17" style="padding:20px;text-align:center;color:#66736a">Belum ada data. Klik “Tempel dari Excel” atau “+ Tambah SPPT”.</td></tr>';
 const sum=(x,f)=>x.reduce((p,r)=>p+f(r),0);
@@ -98,10 +99,30 @@ function edit(id){eid=id||null;const r=id?find(id):{};D('eT').textContent=(id?'U
 function saveRow(){const r={};F.forEach(f=>r[f]=D(f).value.trim());if(!r.nop||!r.nama_wp)return alert('NOP dan Nama WP wajib diisi');
 if(rows().some(x=>x.nop==r.nop&&x.id!=eid))return alert('NOP sudah ada pada tahun '+db.cur);
 const o=mk(r,db.cur);if(eid)Object.assign(find(eid),o);else S.sp.push({id:uid(),...o});D('dE').close();init();commit()}
-function doPaste(){let a=0,u=0;D('pt').value.split(/\r?\n/).forEach(l=>{if(!l.trim())return;const c=l.split(l.includes('\t')?'\t':';').map(s=>s.trim());if(c.length<2||!/\d/.test(c[0]))return;
-const x=rows().find(r=>r.nop==c[0]),pk=N(c[4]),o=mk({nop:c[0],nama_wp:c[1],luas:N(c[2]),alamat_op:c[3],pokok:pk,alamat_wp:c[5],pemilik:c[6],no_hp:c[7],keterangan:c[8],kolektor:c[9],bayar:/^lunas/i.test(c[10]||'')?pk:(x?x.bayar:0),tgl:x?x.tgl:''},db.cur);
-if(x){Object.assign(x,o);u++}else{S.sp.push({id:uid(),...o});a++}});
-if(!a&&!u)return alert('Tidak ada baris yang terbaca');D('dImp').close();D('pt').value='';commit();alert(`Selesai: ${a} ditambahkan, ${u} diperbarui.`)}
+const HX=['NOP','NAMA WP','LUAS','ALAMAT_OBJEK_PAJAK','POKOK_PBB','ALAMAT_WAJIB_PAJAK','PEMILIK','NO HP','KETERANGAN','KOLEKTOR','STATUS','DIBAYAR','TGL BAYAR'];
+const KX={nop:'nop',namawp:'nama_wp',nama:'nama_wp',luas:'luas',alamatobjekpajak:'alamat_op',alamatobjek:'alamat_op',alamatop:'alamat_op',pokokpbb:'pokok',pokok:'pokok',alamatwajibpajak:'alamat_wp',alamatwp:'alamat_wp',pemilik:'pemilik',nohp:'no_hp',hp:'no_hp',keterangan:'keterangan',kolektor:'kolektor',status:'status',dibayar:'bayar',tglbayar:'tgl',tanggalbayar:'tgl'};
+const POS=['nop','nama_wp','luas','alamat_op','pokok','alamat_wp','pemilik','no_hp','keterangan','kolektor','status'];
+const nv=v=>typeof v=='number'?v:N(v);
+const dt=v=>{if(v instanceof Date&&!isNaN(v))return v.getFullYear()+'-'+String(v.getMonth()+1).padStart(2,'0')+'-'+String(v.getDate()).padStart(2,'0');const t=String(v||'').trim(),m=t.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);return m?`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`:/^\d{4}-\d{2}-\d{2}$/.test(t)?t:''};
+function applyRows(list){let a=0,u=0;list.forEach(o=>{o.nop=String(o.nop||'').trim();o.nama_wp=String(o.nama_wp||'').trim();if(!/\d/.test(o.nop)||!o.nama_wp)return;
+const x=rows().find(r=>r.nop==o.nop),pk=nv(o.pokok),by=nv(o.bayar),g=f=>String(o[f]??'').trim()||(x?x[f]:'')||'';
+const n=mk({nop:o.nop,nama_wp:o.nama_wp,luas:nv(o.luas),alamat_op:g('alamat_op'),pokok:pk,alamat_wp:g('alamat_wp'),pemilik:g('pemilik'),no_hp:g('no_hp'),keterangan:g('keterangan'),kolektor:g('kolektor'),bayar:by>0?by:/^lunas/i.test(String(o.status||''))?pk:(x?x.bayar:0),tgl:dt(o.tgl)||(x?x.tgl:'')},db.cur);
+if(x){Object.assign(x,n);u++}else{S.sp.push({id:uid(),...n});a++}});return[a,u]}
+function doPaste(){const list=[];D('pt').value.split(/\r?\n/).forEach(l=>{if(!l.trim())return;const c=l.split(l.includes('\t')?'\t':';').map(s=>s.trim());if(c.length<2)return;const o={};POS.forEach((k,i)=>o[k]=c[i]);list.push(o)});
+const[a,u]=applyRows(list);if(!a&&!u)return alert('Tidak ada baris yang terbaca');D('dImp').close();D('pt').value='';commit();alert(`Selesai: ${a} ditambahkan, ${u} diperbarui.`)}
+const noX=()=>!window.XLSX&&(alert('Pustaka Excel belum termuat. Periksa koneksi internet lalu muat ulang halaman.'),1);
+function impX(e){const f=e.target.files[0];e.target.value='';if(!f||noX())return;const r=new FileReader();r.onload=()=>{try{
+const wb=XLSX.read(r.result,{type:'array',cellDates:true}),A=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:''});
+const hi=A.findIndex(w=>w.some(c=>/^nop$/i.test(String(c).trim()))),map=hi>=0?A[hi].map(c=>KX[String(c).toLowerCase().replace(/[^a-z]/g,'')]||null):POS;
+const list=A.slice(hi>=0?hi+1:0).map(w=>{const o={};map.forEach((k,i)=>{if(k)o[k]=w[i]});return o});
+const n=list.filter(o=>/\d/.test(String(o.nop||''))&&String(o.nama_wp||'').trim()).length;
+if(!n)return alert('Tidak ada baris data yang terbaca. Pastikan baris judul memuat kolom NOP dan NAMA WP.');
+if(!confirm(`${n} baris dari "${f.name}" akan digabung ke data tahun ${db.cur} (NOP yang sama diperbarui). Lanjutkan?`))return;
+const[a,u]=applyRows(list);commit();alert(`Selesai: ${a} ditambahkan, ${u} diperbarui.`)}catch(x){alert('Gagal membaca file Excel: '+x.message)}};r.readAsArrayBuffer(f)}
+function saveX(A,name,sh){const ws=XLSX.utils.aoa_to_sheet(A);ws['!cols']=[26,26,9,22,12,20,18,15,24,12,10,12,12].map(w=>({wch:w}));const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,sh);XLSX.writeFile(wb,name)}
+function expX(){if(noX())return;const fd=t=>t?t.split('-').reverse().join('/'):'';
+saveX([HX,...LL.map(r=>[r.nop,r.nama_wp,+r.luas||0,r.alamat_op,+r.pokok||0,r.alamat_wp,pem(r),r.no_hp,r.keterangan,r.kolektor,stat(r),+r.bayar||0,fd(r.tgl)])],`PBB-P2_Kadakajaya_${db.cur}.xlsx`,'PBB '+db.cur)}
+function tplX(){if(noX())return;saveX([HX],'Template_PBB-P2.xlsx','Template')}
 function newYear(){const ys=years(),has=ys.filter(y=>S.sp.some(r=>+r.tahun==y));D('ny').value=ys[0]+1;D('ncp').innerHTML='<option value="">(kosong)</option>'+has.map(y=>`<option>${y}</option>`).join('');D('ncp').selectedIndex=has.length?1:0;D('dY').showModal()}
 function doYear(){const y=+D('ny').value,s=D('ncp').value;if(!y)return;
 if(S.sp.some(r=>+r.tahun==y)&&!confirm('Tahun '+y+' sudah berisi data. Data akan DIHAPUS dan ditimpa. Lanjutkan?'))return;

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><title>Potong Sketsa Bidang Tanah</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="https://cdn.jsdelivr.net/npm/dxf-parser@1.1.2/dist/dxf-parser.js"></script>
+<style>
+:root{--bg:#f4f5f7;--pn:#fff;--fg:#14181f;--mu:#6b7380;--bd:#cfd4dc;--ac:#14b8a6;--cv:#e9ebef;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f131a;--pn:#1a202b;--fg:#e6e9ef;--mu:#8b94a3;--bd:#2c3442;--cv:#0b0e13;color-scheme:dark}}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font:13px system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;flex-direction:column;gap:8px;padding:10px;box-sizing:border-box;overflow:hidden}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button,select,input[type=number],input[type=text]{background:var(--pn);color:var(--fg);border:1px solid var(--bd);border-radius:6px;padding:7px 11px;font:inherit}
+button{cursor:pointer}button:hover{border-color:var(--ac)}
+button.pri{background:var(--ac);color:#04211e;border-color:var(--ac);font-weight:600}
+button.dng{color:#e5484d;font-size:11px;padding:4px 8px}
+button.on{border-color:var(--ac);box-shadow:inset 0 0 0 1px var(--ac)}
+.mu{color:var(--mu);font-size:11px}
+h1{font-size:13px;margin:0;flex:1}
+#q{flex:1;min-width:0}
+#wrap{flex:1;min-height:0;position:relative;border-radius:6px;overflow:hidden;border:1px solid var(--bd);background:var(--cv)}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#empty{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center;color:var(--mu);text-align:center}
+#lay{max-height:84px;overflow:auto;padding:6px 2px}
+#lay label{display:inline-flex;gap:4px;align-items:center;margin:2px 10px 2px 0;white-space:nowrap}
+#ov{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;padding:20px;z-index:9}
+#ov img{max-width:92vw;max-height:80vh;background:#fff;border-radius:6px}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ac);color:#04211e;padding:8px 14px;border-radius:6px;display:none;z-index:10}
+</style></head><body>
+<div class="row"><h1>Potong gambar untuk Hal. 6 (Sketsa bidang tanah)</h1><span class="mu" id="hasil"></span></div>
+<div class="row">
+ <button id="bFile">Ganti file</button><input type="file" id="fi" accept=".dxf" hidden>
+ <span class="mu" id="fname">Belum ada file</span>
+ <button class="dng" id="bForget">Lupakan file tersimpan</button>
+ <button id="bMode">Mode: Pilih area</button>
+ <button id="bIn">+</button><button id="bOut">−</button><button id="bFit">Pas layar</button>
+ <label><input type="checkbox" id="bw" checked> Hitam putih (DXF)</label>
+ <label><input type="checkbox" id="lock"> Kunci rasio kotak sketsa</label>
+</div>
+<div class="row"><input type="text" id="q" placeholder="Cari nomor bidang / teks, mis. 04505 lalu Enter"><button id="pv">‹</button><button id="nx">›</button><span class="mu" id="cnt">0 / 0</span></div>
+<div id="wrap"><canvas id="cv"></canvas><div id="empty"><div>Muat file DXF peta desa untuk memulai</div><button class="pri" id="bFile2">Pilih file DXF</button></div></div>
+<details open><summary class="mu">Layer (centang untuk menampilkan)</summary><div id="lay"></div></details>
+<div class="row">
+ <span>Lebar hasil</span><select id="ow"><option>1200</option><option>1600</option><option selected>2400</option><option>3200</option><option>4800</option></select>
+ <span>Tebal garis</span><input type="number" id="lw" value="2" min="1" max="12" style="width:60px">
+ <span>Penanda bidang hasil cari</span><select id="mk"><option value="bold">Merah + tebal</option><option value="red">Merah</option><option value="fill">Isi saja</option><option value="none">Tanpa</option></select>
+ <button class="pri" id="bUse">✓ Pakai di Hal. 6</button><button id="bCopy">Salin PNG</button><button id="bPng">Unduh PNG</button><button id="bSvg">Unduh SVG</button><button id="bClr">Hapus pilihan</button>
+</div>
+<div id="ov"><div style="text-align:center"><img id="ovi"><div style="margin-top:10px"><button id="ovx">Tutup</button></div></div></div>
+<div id="toast"></div>
+<script>
+const $=id=>document.getElementById(id);
+const cv=$('cv'),ctx=cv.getContext('2d');
+let prims=[],layers={},bbox=null,view={cx:0,cy:0,s:1},crop=null,sel=null,results=[],ri=0,mode='sel',W=0,H=0,raf=0;
+const RATIO=1400/895;
+const ACI={1:'#ff0000',2:'#ffff00',3:'#00ff00',4:'#00ffff',5:'#4d4dff',6:'#ff00ff',7:'#ffffff'};
+const aci=n=>ACI[n]||(n>0?`hsl(${(n*37)%360},60%,55%)`:'#ffffff');
+const toast=t=>{const e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',2200)};
+/* ---------- penyimpanan file (IndexedDB) ---------- */
+const idb=()=>new Promise((res,rej)=>{try{const r=indexedDB.open('sketsa',1);r.onupgradeneeded=()=>r.result.createObjectStore('f');r.onsuccess=()=>res(r.result);r.onerror=()=>rej()}catch(e){rej(e)}});
+async function dbSet(k,v){try{const d=await idb();d.transaction('f','readwrite').objectStore('f').put(v,k)}catch(e){}}
+async function dbGet(k){try{const d=await idb();return await new Promise(r=>{const q=d.transaction('f').objectStore('f').get(k);q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)})}catch(e){return null}}
+async function dbDel(k){try{const d=await idb();d.transaction('f','readwrite').objectStore('f').delete(k)}catch(e){}}
+/* ---------- parse DXF ---------- */
+function load(text,name){
+ let d;try{d=new DxfParser().parseSync(text)}catch(e){toast('Gagal membaca DXF');return}
+ prims=[];layers={};
+ const L=d.tables&&d.tables.layer?d.tables.layer.layers:{};
+ for(const k in L)layers[k]={on:true,c:aci(Math.abs(L[k].colorIndex||7))};
+ const ensure=n=>{if(!layers[n])layers[n]={on:true,c:'#fff'}};
+ for(const e of d.entities||[]){
+  const ly=e.layer||'0';ensure(ly);const col=(e.colorIndex>0&&e.colorIndex<256)?aci(e.colorIndex):null;
+  if(e.type==='LINE'&&e.vertices)prims.push({t:'p',pts:e.vertices.map(v=>[v.x,v.y]),ly,col});
+  else if(e.type==='LWPOLYLINE'||e.type==='POLYLINE'){if(e.vertices&&e.vertices.length>1)prims.push({t:'p',pts:e.vertices.map(v=>[v.x,v.y]),closed:!!e.shape,ly,col})}
+  else if(e.type==='CIRCLE'||e.type==='ARC'){const a0=e.type==='ARC'?e.startAngle:0;let a1=e.type==='ARC'?e.endAngle:Math.PI*2;if(a1<=a0)a1+=Math.PI*2;const n=Math.max(8,Math.ceil((a1-a0)/0.2)),pts=[];for(let i=0;i<=n;i++){const a=a0+(a1-a0)*i/n;pts.push([e.center.x+e.radius*Math.cos(a),e.center.y+e.radius*Math.sin(a)])}prims.push({t:'p',pts,ly,col})}
+  else if(e.type==='TEXT'||e.type==='MTEXT'){
+   let str=e.text||'';if(e.type==='MTEXT')str=str.replace(/\\P/g,'\n').replace(/\{?\\[A-Za-z][^;]*;/g,'').replace(/[{}]/g,'');
+   const h=e.textHeight||e.height||1,hl=e.halign||0;
+   let pos=e.position||e.startPoint,al='left',bl='alphabetic';
+   if(e.type==='TEXT'){if((hl||e.valign)&&e.endPoint)pos=e.endPoint;al=hl===1||hl===4||hl===5?'center':hl===2?'right':'left'}
+   else{const ap=e.attachmentPoint||1;al=[2,5,8].includes(ap)?'center':[3,6,9].includes(ap)?'right':'left';bl=ap<=3?'top':ap<=6?'middle':'bottom'}
+   if(pos)prims.push({t:'t',x:pos.x,y:pos.y,h,rot:(e.rotation||0)*Math.PI/180,str,al,bl,ly,col});
+  }
+ }
+ for(const p of prims){if(p.t==='p'){let a=1e18,b=1e18,c=-1e18,dd=-1e18;for(const q of p.pts){if(q[0]<a)a=q[0];if(q[0]>c)c=q[0];if(q[1]<b)b=q[1];if(q[1]>dd)dd=q[1]}p.bb=[a,b,c,dd]}else p.bb=[p.x,p.y,p.x,p.y]}
+ const ps=prims.filter(p=>p.t==='p');
+ if(ps.length){const xs=ps.map(p=>p.bb[0]).sort((a,b)=>a-b),xe=ps.map(p=>p.bb[2]).sort((a,b)=>a-b),ys=ps.map(p=>p.bb[1]).sort((a,b)=>a-b),ye=ps.map(p=>p.bb[3]).sort((a,b)=>a-b);const q=i=>Math.floor(ps.length*i);bbox=[xs[q(.01)],ys[q(.01)],xe[Math.min(ps.length-1,q(.99))],ye[Math.min(ps.length-1,q(.99))]]}
+ $('fname').textContent='File tersimpan: '+name;$('empty').style.display='none';
+ buildLayers();sel=null;results=[];crop=null;fit();upd();
+}
+function buildLayers(){const el=$('lay');el.innerHTML='';for(const k of Object.keys(layers)){const l=document.createElement('label'),c=document.createElement('input');c.type='checkbox';c.checked=layers[k].on;c.onchange=()=>{layers[k].on=c.checked;draw()};l.append(c,k);el.append(l)}}
+/* ---------- render ---------- */
+function paint(c,tf,vb,o){
+ const {k,ox,oy}=tf,X=x=>x*k+ox,Y=y=>oy-y*k;
+ c.lineJoin='round';
+ for(const p of prims){
+  if(!layers[p.ly].on)continue;const b=p.bb;if(b[2]<vb[0]||b[0]>vb[2]||b[3]<vb[1]||b[1]>vb[3])continue;
+  c.strokeStyle=c.fillStyle=o.bw?'#111':(p.col||layers[p.ly].c);
+  if(p.t==='p'){c.lineWidth=o.lw;c.beginPath();p.pts.forEach((q,i)=>i?c.lineTo(X(q[0]),Y(q[1])):c.moveTo(X(q[0]),Y(q[1])));if(p.closed)c.closePath();c.stroke()}
+  else{const fs=p.h*k;if(fs<2.5)continue;c.save();c.translate(X(p.x),Y(p.y));c.rotate(-p.rot);c.font=fs+'px Arial,sans-serif';c.textAlign=p.al;c.textBaseline=p.bl;p.str.split('\n').forEach((s,i)=>c.fillText(s,0,i*fs*1.2));c.restore()}
+ }
+ if(sel&&o.mk!=='none'){
+  c.beginPath();sel.pts.forEach((q,i)=>i?c.lineTo(X(q[0]),Y(q[1])):c.moveTo(X(q[0]),Y(q[1])));c.closePath();
+  if(o.mk!=='red'){c.fillStyle='rgba(239,68,68,.25)';c.fill()}
+  if(o.mk!=='fill'){c.strokeStyle='#e00000';c.lineWidth=o.mk==='bold'?o.hl:Math.max(1,o.hl/2);c.stroke()}
+ }
+}
+function vtf(){return{k:view.s,ox:W/2-view.cx*view.s,oy:H/2+view.cy*view.s}}
+function draw(){cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{
+ const dpr=devicePixelRatio||1;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+ const bw=$('bw').checked;ctx.fillStyle=bw?'#fff':'#0b0e13';ctx.fillRect(0,0,W,H);
+ if(!prims.length)return;const tf=vtf();
+ const vb=[view.cx-W/2/view.s,view.cy-H/2/view.s,view.cx+W/2/view.s,view.cy+H/2/view.s];
+ paint(ctx,tf,vb,{bw,lw:1,hl:+$('lw').value,mk:$('mk').value});
+ if(crop){const a=sx(crop.x0),b=sy(crop.y1),c2=sx(crop.x1),d=sy(crop.y0);
+  ctx.fillStyle='rgba(0,0,0,.45)';ctx.beginPath();ctx.rect(0,0,W,H);ctx.rect(a,b,c2-a,d-b);ctx.fill('evenodd');
+  ctx.strokeStyle='#14b8a6';ctx.lineWidth=2;ctx.setLineDash([6,4]);ctx.strokeRect(a,b,c2-a,d-b);ctx.setLineDash([])}
+})}
+const sx=x=>(x-view.cx)*view.s+W/2,sy=y=>H/2-(y-view.cy)*view.s,wx=x=>(x-W/2)/view.s+view.cx,wy=y=>(H/2-y)/view.s+view.cy;
+function resize(){const r=$('wrap').getBoundingClientRect(),dpr=devicePixelRatio||1;W=r.width;H=r.height;cv.width=W*dpr;cv.height=H*dpr;draw()}
+function fitBox(b,m=1.08){view.cx=(b[0]+b[2])/2;view.cy=(b[1]+b[3])/2;view.s=Math.min(W/((b[2]-b[0])*m||1),H/((b[3]-b[1])*m||1));draw()}
+function fit(){if(bbox)fitBox(bbox,1.04)}
+function zoom(f,px=W/2,py=H/2){const a=wx(px),b=wy(py);view.s*=f;view.cx=a-(px-W/2)/view.s;view.cy=b+(py-H/2)/view.s;draw()}
+/* ---------- pencarian ---------- */
+function inside(pt,poly){let r=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if((a[1]>pt[1])!==(b[1]>pt[1])&&pt[0]<(b[0]-a[0])*(pt[1]-a[1])/(b[1]-a[1])+a[0])r=!r}return r}
+const area=p=>(p.bb[2]-p.bb[0])*(p.bb[3]-p.bb[1]);
+function search(){
+ const q=$('q').value.trim().toLowerCase();results=[];ri=0;
+ if(q){const polys=prims.filter(p=>p.t==='p'&&p.pts.length>=4&&(p.closed||(p.pts[0][0]===p.pts.at(-1)[0]&&p.pts[0][1]===p.pts.at(-1)[1])));
+  const seen=new Set();
+  for(const t of prims.filter(p=>p.t==='t'&&p.str.toLowerCase().includes(q))){
+   let best=null;for(const p of polys){if(p.bb[0]<=t.x&&t.x<=p.bb[2]&&p.bb[1]<=t.y&&t.y<=p.bb[3]&&inside([t.x,t.y],p.pts)&&(!best||area(p)<area(best)))best=p}
+   if(best&&!seen.has(best)){seen.add(best);results.push(best)}else if(!best)results.push({pts:null,bb:[t.x-t.h*10,t.y-t.h*6,t.x+t.h*10,t.y+t.h*6]})}}
+ go();
+}
+function go(){
+ if(!results.length){sel=null;$('cnt').textContent='0 / 0';draw();upd();return}
+ const r=results[ri];sel=r.pts?r:null;$('cnt').textContent=(ri+1)+' / '+results.length;
+ const b=r.bb,cx=(b[0]+b[2])/2,cy=(b[1]+b[3])/2;let w=(b[2]-b[0])*1.6,h=(b[3]-b[1])*1.6;
+ if(w/h<RATIO)w=h*RATIO;else h=w/RATIO;
+ crop={x0:cx-w/2,x1:cx+w/2,y0:cy-h/2,y1:cy+h/2};fitBox([crop.x0,crop.y0,crop.x1,crop.y1],1.1);upd();
+}
+function upd(){if(!crop){$('hasil').textContent='';return}const w=+$('ow').value;$('hasil').textContent='Hasil: '+w+' × '+Math.round(w*(crop.y1-crop.y0)/(crop.x1-crop.x0))+' px'}
+/* ---------- ekspor ---------- */
+function out(){
+ if(!crop){toast('Pilih area dulu (cari bidang atau seret kotak)');return null}
+ const w=+$('ow').value,k=w/(crop.x1-crop.x0),h=Math.round((crop.y1-crop.y0)*k),f=w/1400;
+ const tf={k,ox:-crop.x0*k,oy:crop.y1*k},vb=[crop.x0,crop.y0,crop.x1,crop.y1];
+ return{w,h,tf,vb,o:{bw:$('bw').checked,lw:Math.max(1,f),hl:+$('lw').value*f,mk:$('mk').value}};
+}
+function pngBlob(){const r=out();if(!r)return Promise.resolve(null);const c=document.createElement('canvas');c.width=r.w;c.height=r.h;const x=c.getContext('2d');x.fillStyle=r.o.bw?'#fff':'#0b0e13';x.fillRect(0,0,r.w,r.h);paint(x,r.tf,r.vb,r.o);return new Promise(res=>c.toBlob(res,'image/png'))}
+function svgStr(){
+ const r=out();if(!r)return null;const {k,ox,oy}=r.tf,X=x=>(x*k+ox).toFixed(1),Y=y=>(oy-y*k).toFixed(1),e=s=>s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+ let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${r.w}" height="${r.h}" viewBox="0 0 ${r.w} ${r.h}"><rect width="100%" height="100%" fill="${r.o.bw?'#fff':'#0b0e13'}"/>`;
+ const vb=r.vb;
+ for(const p of prims){if(!layers[p.ly].on)continue;const b=p.bb;if(b[2]<vb[0]||b[0]>vb[2]||b[3]<vb[1]||b[1]>vb[3])continue;const col=r.o.bw?'#111':(p.col||layers[p.ly].c);
+  if(p.t==='p')s+=`<${p.closed?'polygon':'polyline'} fill="none" stroke="${col}" stroke-width="${r.o.lw}" points="${p.pts.map(q=>X(q[0])+','+Y(q[1])).join(' ')}"/>`;
+  else{const fs=p.h*k;if(fs<2.5)continue;const an={left:'start',center:'middle',right:'end'}[p.al],db={top:'hanging',middle:'central',bottom:'text-after-edge',alphabetic:'alphabetic'}[p.bl];
+   s+=`<text transform="translate(${X(p.x)} ${Y(p.y)}) rotate(${(-p.rot*180/Math.PI).toFixed(2)})" font-family="Arial" font-size="${fs.toFixed(1)}" text-anchor="${an}" dominant-baseline="${db}" fill="${col}">${p.str.split('\n').map((t,i)=>`<tspan x="0" dy="${i?1.2*fs:0}">${e(t)}</tspan>`).join('')}</text>`}}
+ if(sel&&r.o.mk!=='none')s+=`<polygon points="${sel.pts.map(q=>X(q[0])+','+Y(q[1])).join(' ')}" fill="${r.o.mk==='red'?'none':'rgba(239,68,68,.25)'}" stroke="${r.o.mk==='fill'?'none':'#e00000'}" stroke-width="${r.o.mk==='bold'?r.o.hl:Math.max(1,r.o.hl/2)}"/>`;
+ return s+'</svg>';
+}
+async function save(blob,name){try{const d=await claude.use('downloads');if(!d){toast('Unduhan tidak tersedia di sini');return}await d.save({filename:name,data:blob});toast('Tersimpan')}catch(e){if(!e||e.code!=='declined')toast('Gagal menyimpan')}}
+$('bPng').onclick=async()=>{const b=await pngBlob();if(b)save(b,'sketsa-bidang.png')};
+$('bSvg').onclick=()=>{const s=svgStr();if(s)save(new Blob([s],{type:'image/svg+xml'}),'sketsa-bidang.svg')};
+$('bCopy').onclick=async()=>{const b=await pngBlob();if(!b)return;try{await navigator.clipboard.write([new ClipboardItem({'image/png':b})]);toast('PNG disalin')}catch(e){toast('Salin ditolak browser, gunakan Unduh PNG')}};
+$('bUse').onclick=async()=>{const b=await pngBlob();if(!b)return;$('ovi').src=URL.createObjectURL(b);$('ov').style.display='flex';toast('Gambar siap dipakai di Hal. 6')};
+$('ovx').onclick=()=>$('ov').style.display='none';
+/* ---------- interaksi ---------- */
+let drag=null;
+cv.onmousedown=e=>{const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+ drag={x,y,pan:mode==='pan'||e.button!==0,cx:view.cx,cy:view.cy,wx:wx(x),wy:wy(y)};e.preventDefault()};
+window.onmousemove=e=>{if(!drag)return;const r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+ if(drag.pan){view.cx=drag.cx-(x-drag.x)/view.s;view.cy=drag.cy+(y-drag.y)/view.s;draw()}
+ else{let a=drag.wx,b=drag.wy,c=wx(x),d=wy(y);if($('lock').checked){const w=Math.abs(c-a);const h=w/RATIO;d=b+(d<b?-h:h)}
+  crop={x0:Math.min(a,c),x1:Math.max(a,c),y0:Math.min(b,d),y1:Math.max(b,d)};upd();draw()}};
+window.onmouseup=()=>{if(drag&&!drag.pan&&crop&&(crop.x1-crop.x0)*view.s<6)crop=null;drag=null;upd();draw()};
+cv.oncontextmenu=e=>e.preventDefault();
+cv.onwheel=e=>{e.preventDefault();const r=cv.getBoundingClientRect();zoom(e.deltaY<0?1.2:1/1.2,e.clientX-r.left,e.clientY-r.top)};
+$('bMode').onclick=()=>{mode=mode==='sel'?'pan':'sel';$('bMode').textContent='Mode: '+(mode==='sel'?'Pilih area':'Geser');cv.style.cursor=mode==='sel'?'crosshair':'grab'};
+cv.style.cursor='crosshair';
+$('bIn').onclick=()=>zoom(1.4);$('bOut').onclick=()=>zoom(1/1.4);$('bFit').onclick=fit;
+$('bw').onchange=draw;$('mk').onchange=draw;$('lw').oninput=draw;$('ow').onchange=upd;
+$('bClr').onclick=()=>{sel=null;results=[];crop=null;$('cnt').textContent='0 / 0';$('q').value='';upd();draw()};
+$('q').onkeydown=e=>{if(e.key==='Enter')search()};
+$('nx').onclick=()=>{if(results.length){ri=(ri+1)%results.length;go()}};
+$('pv').onclick=()=>{if(results.length){ri=(ri-1+results.length)%results.length;go()}};
+const pick=()=>$('fi').click();$('bFile').onclick=pick;$('bFile2').onclick=pick;
+$('fi').onchange=async e=>{const f=e.target.files[0];if(!f)return;const t=await f.text();dbSet('dxf',{name:f.name,text:t});load(t,f.name);e.target.value=''};
+$('bForget').onclick=async()=>{await dbDel('dxf');prims=[];layers={};sel=null;crop=null;bbox=null;$('lay').innerHTML='';$('fname').textContent='Belum ada file';$('empty').style.display='flex';draw();toast('File tersimpan dihapus')};
+new ResizeObserver(resize).observe($('wrap'));resize();
+dbGet('dxf').then(v=>{if(v)load(v.text,v.name)});
+</script></body></html>

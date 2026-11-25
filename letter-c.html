@@ -84,7 +84,7 @@ table{width:100%;border-collapse:collapse;background:#fff}th,td{padding:9px;bord
 <div class="panel"><input id="globalQ" class="search" style="width:100%" placeholder="Nomor Kohir / Atas Nama / Persil / Bidang / Blok..." oninput="renderSearch()"><div id="searchOut" style="margin-top:15px"></div></div></section>
 
 <section id="cetak" class="page">
-<div class="toolbar no-print"><div id="cbw_printSel" style="display:contents"></div><input id="noSurat" class="search" style="min-width:170px;flex:none" placeholder="No. Reg. Surat (590/…/bln/thn)" title="Isi nomor registrasi surat saja. Format: 590 / No. Reg / Bulan Romawi / Tahun (otomatis dari Tanggal Surat)" oninput="renderCertificate()"><label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)">Tanggal Surat<input id="tglSurat" type="date" class="search" style="min-width:150px;flex:none" oninput="renderCertificate()" onchange="renderCertificate()"></label><button class="btn primary" onclick="fitPrint();window.print()">🖨️ Cetak</button></div>
+<div class="toolbar no-print"><div id="cbw_printSel" style="display:contents"></div><input id="noSurat" class="search" style="min-width:170px;flex:none" placeholder="No. Reg. Surat (590/…/bln/thn)" title="Isi nomor registrasi surat saja. Format: 590 / No. Reg / Bulan Romawi / Tahun (otomatis dari Tanggal Surat)" oninput="renderCertificate()"><label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)">Tanggal Surat<select id="tglMode" class="search" style="min-width:150px;flex:none" onchange="setTglMode()"><option value="today">Hari ini (otomatis)</option><option value="custom">Tentukan tanggal</option></select><input id="tglSurat" type="date" class="search" style="min-width:150px;flex:none" oninput="renderCertificate()" onchange="renderCertificate()"></label><button class="btn primary" onclick="fitPrint();window.print()">🖨️ Cetak</button></div>
 <div class="panel" id="certificate"></div></section>
 
 <section id="laporan" class="page"><h2>Laporan / Rekap</h2>
@@ -233,7 +233,7 @@ let mc=i===0?`<td class="mut" rowspan="${n+1}">${ms.length?ms.map(m=>`${esc(m.ta
 body+=`<tr>${sc}${dc}${bc}${mc}</tr>`}
 const T=(t,k)=>d2(totalRows(x,t,k));
 body+=`<tr class="tot"><td colspan="3">Jumlah</td><td class="r">${T('sawah','luas')}</td><td class="r">${T('sawah','pajak')}</td><td colspan="3">Jumlah</td><td class="r">${T('darat','luas')}</td><td class="r">${T('darat','pajak')}</td><td colspan="2">Jumlah</td><td class="r">${T('bangunan','luas')}</td><td class="r">${T('bangunan','pajak')}</td></tr>`;
-const tv=document.getElementById('tglSurat')?.value,td=tv?new Date(tv+'T00:00:00'):new Date(),tl=td.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+const tv=tglVal(),td=tv?new Date(tv+'T00:00:00'):new Date(),tl=td.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
 const totLuas=totalRows(x,'sawah','luas')+totalRows(x,'darat','luas')+totalRows(x,'bangunan','luas'),totPajak=totalRows(x,'sawah','pajak')+totalRows(x,'darat','pajak')+totalRows(x,'bangunan','pajak');
 certificate.innerHTML=`<div class="sk"><div class="kop"><div class="kl">${S.logo?`<img src="${S.logo}" alt="">`:''}</div><div class="kt"><b>${esc((S.pemda||'').toUpperCase())}</b><div>${esc((S.kec||'').toUpperCase())}</div><b>PEMERINTAH DESA ${esc(S.desa.toUpperCase())}</b>${S.alamat?`<div class="al">${esc(S.alamat)}</div>`:''}</div><div class="kl"></div></div>
 <h3>SURAT KETERANGAN DATA LETTER C DESA</h3><div class="no">Nomor : 590 / ${noS?esc(noS):'.........'} / ${['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'][td.getMonth()]} / ${td.getFullYear()}</div>
@@ -274,7 +274,13 @@ function fitPrint(){let el=document.querySelector('#certificate .sk');if(!el)ret
 if(h>H){let z=Math.max(.7,(H/h)*.97);if(H/h>=.7){el.style.zoom=z;el.style.width=(W/z)+'px'}else{el.style.width=''}}else{el.style.width=''}}
 function resetFit(){let el=document.querySelector('#certificate .sk');if(el){el.style.zoom='';el.style.width=''}}
 window.addEventListener('beforeprint',fitPrint);window.addEventListener('afterprint',resetFit);
-document.getElementById('tglSurat').value=new Date().toISOString().slice(0,10);
+function todayISO(){const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())}
+function tglVal(){const m=document.getElementById('tglMode'),i=document.getElementById('tglSurat');if(!m||!i)return '';if(m.value==='today')return todayISO();return i.value||todayISO()}
+function setTglMode(){const m=document.getElementById('tglMode'),i=document.getElementById('tglSurat');try{localStorage.setItem('lcTglMode',m.value)}catch(e){}
+ if(m.value==='today'){i.value=todayISO();i.disabled=true}else{i.disabled=false}renderCertificate()}
+(function(){const m=document.getElementById('tglMode'),i=document.getElementById('tglSurat');let v='today';try{v=localStorage.getItem('lcTglMode')==='custom'?'custom':'today'}catch(e){}
+ m.value=v;i.value=todayISO();i.disabled=(v==='today')})();
+window.addEventListener('beforeprint',()=>{const m=document.getElementById('tglMode');if(m&&m.value==='today'){document.getElementById('tglSurat').value=todayISO();renderCertificate()}});
 
 SB.start({module:'letterc',title:'Digital Letter C Desa Kadakajaya',
  collections:[
